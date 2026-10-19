@@ -6,6 +6,8 @@ A personal, mobile-first web app to follow **all your money in one place**: acco
 
 Built with **Next.js + Supabase + Vercel**, all on **free plans**. The app is bilingual (English and Spanish), with a language picker.
 
+**👉 [Try the live demo](https://my-finances-demo.vercel.app/)**: one click, no sign-up, with fake data that starts over every night.
+
 > A personal project built while learning to code. It is not financial advice: tax figures and projections are **estimates**.
 
 ## What it does
