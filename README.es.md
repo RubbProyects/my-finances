@@ -6,6 +6,8 @@ App web personal, pensada para el móvil, para seguir **todo tu dinero en un sol
 
 Hecha con **Next.js + Supabase + Vercel**, todo en **planes gratuitos**. La app es bilingüe (español e inglés), con selector de idioma.
 
+**👉 [Prueba la demo](https://my-finances-demo.vercel.app/)**: un clic, sin registrarte, con datos de mentira que vuelven a empezar cada noche.
+
 > Proyecto personal hecho mientras aprendo a programar. No es asesoramiento financiero: los cálculos fiscales y las proyecciones son **orientativos**.
 
 ## Qué hace
