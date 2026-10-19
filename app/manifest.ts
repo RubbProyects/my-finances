@@ -1,13 +1,14 @@
 import type { MetadataRoute } from "next";
+import { APP_DESCRIPTION, APP_NAME, DEMO } from "@/lib/demo";
 import { ICON_BLUE } from "@/lib/icon";
 
 // Data to install the app on the phone (name, icon, full screen)
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Mi cartera",
-    short_name: "Mi cartera",
-    description: "Mi dinero: cuentas, inversiones, gastos y proyección",
-    lang: "es",
+    name: APP_NAME,
+    short_name: APP_NAME,
+    description: APP_DESCRIPTION,
+    lang: DEMO ? "en" : "es",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

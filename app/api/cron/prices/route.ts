@@ -1,9 +1,11 @@
 // Route called by Vercel Cron once a day (see vercel.json).
 // Updates prices and fetches the bank transactions (and records automatically those with a rule).
 // Vercel sends "Authorization: Bearer <CRON_SECRET>"; without it, nothing runs.
+// In the demo it puts the fake data back first and there's no bank.
 import { updatePrices } from "@/lib/update-prices";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { fetchAllUsers } from "@/lib/fetch-bank";
+import { DEMO } from "@/lib/demo";
 
 export const maxDuration = 300;
 
@@ -16,19 +18,28 @@ export async function GET(request: Request) {
   const admin = supabaseAdmin();
   const messageOf = (e: unknown) => (e instanceof Error ? e.message : String(e));
   let failed = false;
+  let reset: unknown;
   let results: unknown;
   let bank: unknown;
+  if (DEMO) {
+    // reset_demo() only exists in the demo's database (supabase/demo.sql)
+    const { error } = await admin.rpc("reset_demo");
+    reset = error ? { error: error.message } : "ok";
+    if (error) failed = true;
+  }
   try {
     results = await updatePrices(admin);
   } catch (e) {
     results = { error: messageOf(e) };
     failed = true;
   }
-  try {
-    bank = await fetchAllUsers(admin);
-  } catch (e) {
-    bank = { error: messageOf(e) };
-    failed = true;
+  if (!DEMO) {
+    try {
+      bank = await fetchAllUsers(admin);
+    } catch (e) {
+      bank = { error: messageOf(e) };
+      failed = true;
+    }
   }
-  return Response.json({ results, bank }, { status: failed ? 500 : 200 });
+  return Response.json({ reset, results, bank }, { status: failed ? 500 : 200 });
 }
