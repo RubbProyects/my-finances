@@ -50,6 +50,7 @@ const PHRASES: [string, string][] = [
     "El enlace ya se usó o ha caducado. Vuelve a conectar",
   ],
   ["^Cancelled$", "^Cancelado$"],
+  ["Not available in the demo", "No disponible en la demo"],
   [
     "The server is missing the ENABLE_BANKING_APP_ID and ENABLE_BANKING_KEY variables",
     "Faltan las variables ENABLE_BANKING_APP_ID y ENABLE_BANKING_KEY en el servidor",

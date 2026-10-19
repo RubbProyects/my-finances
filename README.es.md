@@ -61,6 +61,7 @@ GitHub Actions semanal (opcional): copia de seguridad ➜ repositorio privado
 - **Login con correo y contraseña y registro desactivado:** solo entra quien tenga un usuario creado a mano en Supabase.
 - **Los cálculos** (rentabilidad, fiscal, gastos, proyección, banco…) son funciones puras en `lib/*.ts`, separadas de la pantalla (`components/*.tsx`).
 - Sin librerías de gráficas: las gráficas están hechas a mano en SVG.
+- **Modo demo** (`NEXT_PUBLIC_DEMO=1`, ver `lib/demo.ts`): el mismo código publicado otra vez, con su propio Supabase y datos de mentira de `supabase/demo.sql`. Añade un botón «Try the demo», empieza en inglés, no tiene conexión real con el banco y el cron de cada noche vuelve a poner los datos de mentira.
 
 | Carpeta | Qué hay |
 | --- | --- |
@@ -68,6 +69,7 @@ GitHub Actions semanal (opcional): copia de seguridad ➜ repositorio privado
 | `components/` | Cada pantalla y desplegable (Resumen, Inversiones, Movimientos, Análisis, Ajustes…) |
 | `lib/` | Cálculos y conexiones (Supabase, Yahoo, FT, Enable Banking) |
 | `supabase/schema.sql` | La estructura completa de la base de datos, para un proyecto nuevo |
+| `supabase/demo.sql` | Datos de mentira para la demo pública (solo para el proyecto de la demo) |
 | `vercel.json` | El cron diario |
 
 ## Tenerla tú: instalación paso a paso

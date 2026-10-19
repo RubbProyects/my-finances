@@ -1,6 +1,7 @@
 // Calls to Enable Banking (reading bank accounts). ONLY on the server:
 // it uses the application's private key, which lives in Vercel and never reaches the browser.
 import { createSign } from "node:crypto";
+import { DEMO, NOT_IN_DEMO } from "@/lib/demo";
 
 const API_URL = process.env.ENABLE_BANKING_URL ?? "https://api.enablebanking.com";
 
@@ -66,6 +67,8 @@ export async function callBank<T>(
   path: string,
   options: { method?: "GET" | "POST"; body?: unknown; headers?: Record<string, string> } = {},
 ): Promise<T> {
+  // The demo has no real bank: every bank route stops here
+  if (DEMO) throw new Error(NOT_IN_DEMO);
   const r = await fetch(`${API_URL}${path}`, {
     method: options.method ?? "GET",
     headers: {

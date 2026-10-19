@@ -16,6 +16,7 @@ import {
   type BankMovement,
   type Rule,
 } from "@/lib/classify";
+import { DEMO } from "@/lib/demo";
 import { field, withSign, euros, prettyDate } from "@/lib/format";
 import { language, t } from "@/lib/language";
 import { translateMessage } from "@/lib/messages";
@@ -487,15 +488,18 @@ export default function BankInbox({
         </span>
       }
     >
-      <button
-        onClick={fetchFromBank}
-        disabled={fetching}
-        className="self-start text-sm underline disabled:opacity-50"
-      >
-        {fetching
-          ? t("Trayendo...", "Fetching...")
-          : t("🔄 Traer movimientos del banco", "🔄 Fetch bank transactions")}
-      </button>
+      {/* In the demo the transactions are already here: there's no bank to fetch from */}
+      {!DEMO && (
+        <button
+          onClick={fetchFromBank}
+          disabled={fetching}
+          className="self-start text-sm underline disabled:opacity-50"
+        >
+          {fetching
+            ? t("Trayendo...", "Fetching...")
+            : t("🔄 Traer movimientos del banco", "🔄 Fetch bank transactions")}
+        </button>
+      )}
 
       {report.map((line) => (
         <p

@@ -61,6 +61,7 @@ Weekly GitHub Actions (optional): backup ➜ private repository
 - **Email and password sign-in, with sign-ups disabled:** only someone with a user created by hand in Supabase can get in.
 - **Calculations** (returns, tax, spending, projection, bank…) are pure functions in `lib/*.ts`, separate from the screens (`components/*.tsx`).
 - No chart libraries: the charts are hand-made SVG.
+- **Demo mode** (`NEXT_PUBLIC_DEMO=1`, see `lib/demo.ts`): the same code deployed a second time, with its own Supabase and fake data from `supabase/demo.sql`. It adds a "Try the demo" button, starts in English, has no real bank connection and the nightly cron puts the fake data back.
 
 | Folder | What's in it |
 | --- | --- |
@@ -68,6 +69,7 @@ Weekly GitHub Actions (optional): backup ➜ private repository
 | `components/` | Each screen and section (Summary, Investments, Transactions, Analysis, Settings…) |
 | `lib/` | Calculations and connections (Supabase, Yahoo, FT, Enable Banking) |
 | `supabase/schema.sql` | The full database structure, for a new project |
+| `supabase/demo.sql` | Fake data for the public demo (only for the demo's project) |
 | `vercel.json` | The daily cron |
 
 ## Get your own: step-by-step setup
