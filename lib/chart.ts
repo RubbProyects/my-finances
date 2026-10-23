@@ -1,6 +1,7 @@
 // Helpers for the charts: time ranges and SVG paths. Pure functions, no React.
 import { addDays } from "@/lib/analysis";
 
+// `date` is "YYYY-MM-DD", or a full ISO date and time for intraday charts
 export type ChartPoint = { date: string; value: number };
 
 export const RANGES = [

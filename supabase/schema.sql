@@ -110,6 +110,16 @@ create table public.expense_categories (
   user_id uuid default auth.uid() not null
 );
 
+create table public.favorites (
+  id uuid default gen_random_uuid() not null,
+  symbol text not null,
+  name text not null,
+  source text default 'yahoo'::text not null,
+  currency text,
+  created_at timestamp with time zone default now() not null,
+  user_id uuid default auth.uid() not null
+);
+
 create table public.fee_schedules (
   id uuid default gen_random_uuid() not null,
   created_at timestamp with time zone default now() not null,
@@ -402,6 +412,7 @@ alter table public.bank_rules add constraint bank_rules_pkey PRIMARY KEY (id);
 alter table public.bank_transactions add constraint bank_transactions_pkey PRIMARY KEY (id);
 alter table public.categories add constraint categories_pkey PRIMARY KEY (id);
 alter table public.expense_categories add constraint expense_categories_pkey PRIMARY KEY (id);
+alter table public.favorites add constraint favorites_pkey PRIMARY KEY (id);
 alter table public.fee_schedules add constraint fee_schedules_pkey PRIMARY KEY (id);
 alter table public.movements add constraint movements_pkey PRIMARY KEY (id);
 alter table public.platforms add constraint platforms_pkey PRIMARY KEY (id);
@@ -415,6 +426,7 @@ alter table public.bank_rules add constraint bank_rules_text_key UNIQUE (user_id
 alter table public.bank_transactions add constraint bank_transactions_bank_ref_key UNIQUE (bank_account_id, bank_ref);
 alter table public.categories add constraint categories_user_name_key UNIQUE (user_id, name);
 alter table public.expense_categories add constraint expense_categories_user_name_key UNIQUE (user_id, name);
+alter table public.favorites add constraint favorites_user_symbol_key UNIQUE (user_id, symbol);
 alter table public.fee_schedules add constraint fee_schedules_user_platform_type_valid_from_key UNIQUE (user_id, platform_id, type_id, valid_from);
 alter table public.platforms add constraint platforms_user_name_key UNIQUE (user_id, name);
 alter table public.prices add constraint prices_asset_id_date_key UNIQUE (asset_id, date);
@@ -429,6 +441,7 @@ alter table public.bank_rules add constraint bank_rules_is_transfer_check CHECK 
 alter table public.bank_rules add constraint bank_rules_text_check CHECK ((length(btrim(text)) >= 3));
 alter table public.bank_transactions add constraint bank_transactions_auto_check CHECK ((auto = ANY (ARRAY['recorded'::text, 'linked'::text])));
 alter table public.bank_transactions add constraint bank_transactions_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'classified'::text, 'ignored'::text])));
+alter table public.favorites add constraint favorites_source_check CHECK ((source = ANY (ARRAY['yahoo'::text, 'ft'::text])));
 alter table public.fee_schedules add constraint fee_schedules_fixed_check CHECK ((fixed >= (0)::numeric));
 alter table public.fee_schedules add constraint fee_schedules_fx_percent_check CHECK ((fx_percent >= (0)::numeric));
 alter table public.fee_schedules add constraint fee_schedules_maximum_check CHECK (((maximum IS NULL) OR (maximum >= minimum)));
@@ -458,6 +471,7 @@ alter table public.bank_transactions add constraint bank_transactions_movement_i
 alter table public.bank_transactions add constraint bank_transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table public.categories add constraint categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table public.expense_categories add constraint expense_categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+alter table public.favorites add constraint favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table public.fee_schedules add constraint fee_schedules_platform_id_fkey FOREIGN KEY (platform_id) REFERENCES public.platforms(id) ON DELETE CASCADE;
 alter table public.fee_schedules add constraint fee_schedules_type_id_fkey FOREIGN KEY (type_id) REFERENCES public.asset_types(id) ON DELETE CASCADE;
 alter table public.fee_schedules add constraint fee_schedules_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
@@ -483,6 +497,7 @@ CREATE INDEX bank_transactions_movement_id_idx ON public.bank_transactions USING
 CREATE INDEX bank_transactions_user_id_idx ON public.bank_transactions USING btree (user_id);
 CREATE INDEX categories_user_id_idx ON public.categories USING btree (user_id);
 CREATE INDEX expense_categories_user_id_idx ON public.expense_categories USING btree (user_id);
+CREATE INDEX favorites_user_id_idx ON public.favorites USING btree (user_id);
 CREATE INDEX fee_schedules_user_id_idx ON public.fee_schedules USING btree (user_id);
 CREATE INDEX movements_refund_of_id_idx ON public.movements USING btree (refund_of_id);
 CREATE INDEX movements_user_id_idx ON public.movements USING btree (user_id);
@@ -584,6 +599,7 @@ alter table public.bank_rules enable row level security;
 alter table public.bank_transactions enable row level security;
 alter table public.categories enable row level security;
 alter table public.expense_categories enable row level security;
+alter table public.favorites enable row level security;
 alter table public.fee_schedules enable row level security;
 alter table public.movements enable row level security;
 alter table public.platforms enable row level security;
@@ -613,6 +629,9 @@ create policy "own rows only" on public.categories as permissive for all to auth
   using ((user_id = ( SELECT auth.uid() AS uid)))
   with check ((user_id = ( SELECT auth.uid() AS uid)));
 create policy "own rows only" on public.expense_categories as permissive for all to authenticated
+  using ((user_id = ( SELECT auth.uid() AS uid)))
+  with check ((user_id = ( SELECT auth.uid() AS uid)));
+create policy "own rows only" on public.favorites as permissive for all to authenticated
   using ((user_id = ( SELECT auth.uid() AS uid)))
   with check ((user_id = ( SELECT auth.uid() AS uid)));
 create policy "own rows only" on public.fee_schedules as permissive for all to authenticated
@@ -668,6 +687,9 @@ revoke all on table public.expense_categories from public, anon, authenticated, 
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.expense_categories to anon;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.expense_categories to authenticated;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.expense_categories to service_role;
+revoke all on table public.favorites from public, anon, authenticated, service_role;
+grant delete, insert, select, update on table public.favorites to authenticated;
+grant delete, insert, select, update on table public.favorites to service_role;
 revoke all on table public.fee_schedules from public, anon, authenticated, service_role;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.fee_schedules to anon;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.fee_schedules to authenticated;

@@ -83,6 +83,78 @@ export async function fetchHistory(symbol: string, from: Date): Promise<History>
   return parseHistory(json as ChartResponse);
 }
 
+export const CHART_RANGES = {
+  "1d": { range: "1d", interval: "5m" },
+  "5d": { range: "5d", interval: "15m" },
+  "1m": { range: "1mo", interval: "1d" },
+  "6m": { range: "6mo", interval: "1d" },
+  "1y": { range: "1y", interval: "1d" },
+  "5y": { range: "5y", interval: "1wk" },
+  max: { range: "max", interval: "1mo" },
+} as const;
+export type ChartRange = keyof typeof CHART_RANGES;
+
+export type MarketChart = {
+  symbol: string;
+  name: string;
+  exchange: string;
+  currency: string | null;
+  price: number | null;
+  previousClose: number | null;
+  // Time in milliseconds and value; intraday ranges have several points per day
+  points: { t: number; value: number }[];
+};
+
+type MarketChartResponse = {
+  chart?: {
+    error?: { description?: string } | null;
+    result?: {
+      meta?: {
+        symbol?: string;
+        currency?: string;
+        longName?: string;
+        shortName?: string;
+        exchangeName?: string;
+        fullExchangeName?: string;
+        regularMarketPrice?: number;
+        chartPreviousClose?: number;
+        previousClose?: number;
+      };
+      timestamp?: number[];
+      indicators?: { quote?: { close?: (number | null)[] }[] };
+    }[];
+  };
+};
+
+// Chart of a symbol for a range (1 day with 5 minute points, up to the whole history)
+export async function fetchMarketChart(symbol: string, range: ChartRange): Promise<MarketChart> {
+  const { range: r, interval } = CHART_RANGES[range];
+  const json = (await fetchJson(
+    `/v8/finance/chart/${encodeURIComponent(symbol)}?range=${r}&interval=${interval}`,
+  )) as MarketChartResponse;
+  const error = json.chart?.error;
+  if (error) throw new Error(error.description ?? "Symbol not found");
+  const res = json.chart?.result?.[0];
+  if (!res) throw new Error("Symbol not found on Yahoo");
+
+  const closes = res.indicators?.quote?.[0]?.close ?? [];
+  const points: { t: number; value: number }[] = [];
+  (res.timestamp ?? []).forEach((t, i) => {
+    const v = closes[i];
+    if (typeof v === "number" && v > 0) points.push({ t: t * 1000, value: v });
+  });
+  const meta = res.meta ?? {};
+  return {
+    symbol: meta.symbol ?? symbol,
+    name: meta.longName ?? meta.shortName ?? symbol,
+    exchange: meta.fullExchangeName ?? meta.exchangeName ?? "",
+    currency: meta.currency ?? null,
+    price: meta.regularMarketPrice ?? points[points.length - 1]?.value ?? null,
+    previousClose: meta.chartPreviousClose ?? meta.previousClose ?? null,
+    points,
+  };
+}
+
 export type Candidate = {
   symbol: string;
   name: string;

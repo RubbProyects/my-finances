@@ -7,6 +7,7 @@ import Banks, { type BankNotice } from "@/components/Banks";
 import ExpenseCategories from "@/components/ExpenseCategories";
 import LanguagePicker from "@/components/LanguagePicker";
 import Investments from "@/components/Investments";
+import Markets from "@/components/Markets";
 import MyAccount from "@/components/MyAccount";
 import Movements from "@/components/Movements";
 import HideMoney from "@/components/HideMoney";
@@ -17,12 +18,13 @@ import { translateMessage } from "@/lib/messages";
 import { supabase } from "@/lib/supabase";
 import { baseTypeRows } from "@/lib/asset-types";
 
-type Tab = "summary" | "investments" | "movements" | "analysis" | "settings";
+type Tab = "summary" | "markets" | "investments" | "movements" | "analysis" | "settings";
 
 // A function (not a fixed list) so the texts come out in the chosen language
 const tabs = (): { id: Tab; text: string }[] => [
   { id: "summary", text: t("Resumen", "Summary") },
-  { id: "investments", text: t("Inversiones", "Investments") },
+  { id: "markets", text: t("Mercados", "Markets") },
+  { id: "investments", text: t("Cartera", "Portfolio") },
   { id: "movements", text: t("Movimientos", "Transactions") },
   { id: "analysis", text: t("Análisis", "Analysis") },
   { id: "settings", text: t("Ajustes", "Settings") },
@@ -31,7 +33,8 @@ const tabs = (): { id: Tab; text: string }[] => [
 // Line icons (24x24), drawn with the current text color
 const ICONS: Record<Tab, string> = {
   summary: "M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10",
-  investments: "M3 17l6-6 4 4 8-9M15 6h6v6",
+  markets: "M3 3v18h18M7 15l4-4 3 3 5-6",
+  investments: "M4 7h16v13H4zM9 7V4h6v3M4 13h16",
   movements: "M7 4v16M7 20l-4-4M7 20l4-4M17 20V4M17 4l-4 4M17 4l4 4",
   analysis: "M4 20V10M10 20V4M16 20v-7M22 20H2",
   settings:
@@ -103,6 +106,7 @@ export default function AppNavigation() {
         </div>
 
         {current === "summary" && <Summary />}
+        {current === "markets" && <Markets />}
         {current === "investments" && <Investments />}
         {current === "movements" && <Movements />}
         {current === "analysis" && <Analysis />}
@@ -131,7 +135,7 @@ export default function AppNavigation() {
                 window.scrollTo({ top: 0 });
               }}
               aria-current={current === p.id ? "page" : undefined}
-              className={`flex flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium transition-colors ${
+              className={`flex min-w-0 flex-1 flex-col items-center gap-0.5 rounded-xl py-1.5 text-[10px] font-medium transition-colors ${
                 current === p.id ? "bg-accent/15 text-accent" : "text-muted"
               }`}
             >
