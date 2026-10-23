@@ -265,8 +265,8 @@ export default function Banks({ notice }: { notice: BankNotice | null }) {
         viewData ? <span className="text-sm opacity-60">{connections.length}</span> : undefined
       }
     >
-      {notice && <p className={notice.ok ? "text-green-600" : "text-orange-500"}>{notice.text}</p>}
-      {error && <p className="text-red-500">{error}</p>}
+      {notice && <p className={notice.ok ? "text-up" : "text-orange-500"}>{notice.text}</p>}
+      {error && <p className="text-down">{error}</p>}
       {!viewData && <p className="text-sm opacity-70">{t("Cargando...", "Loading...")}</p>}
 
       {/* ---------- Connected banks ---------- */}
@@ -275,7 +275,7 @@ export default function Banks({ notice }: { notice: BankNotice | null }) {
         return (
           <div
             key={connection.id}
-            className="flex flex-col gap-2 rounded border border-gray-400/50 p-2"
+            className="flex flex-col gap-2 rounded-xl border border-line p-2"
           >
             <p className="font-semibold">{connection.bank}</p>
             {connection.valid_until && (
@@ -344,7 +344,7 @@ export default function Banks({ notice }: { notice: BankNotice | null }) {
             : t("⚖️ Comparar con el saldo del banco", "⚖️ Compare with the bank balance")}
         </button>
       )}
-      {adjusted && <p className="text-sm text-green-600">{adjusted}</p>}
+      {adjusted && <p className="text-sm text-up">{adjusted}</p>}
       {compared && (
         <div className="flex flex-col gap-2 text-sm">
           {compared.balances
@@ -365,7 +365,7 @@ export default function Banks({ notice }: { notice: BankNotice | null }) {
             return (
               <div
                 key={f.accountId}
-                className="flex flex-col gap-1 rounded border border-gray-400/50 p-2"
+                className="flex flex-col gap-1 rounded-xl border border-line p-2"
               >
                 <p className="font-semibold">{name}</p>
                 <div className="flex justify-between gap-3">
@@ -394,7 +394,7 @@ export default function Banks({ notice }: { notice: BankNotice | null }) {
                   </div>
                 )}
                 {matches ? (
-                  <p className="text-green-600">{t("✅ Cuadra", "✅ It matches")}</p>
+                  <p className="text-up">{t("✅ Cuadra", "✅ It matches")}</p>
                 ) : (
                   <>
                     <p className="font-semibold text-orange-500">

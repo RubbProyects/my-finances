@@ -180,7 +180,7 @@ export default function FeeSchedules() {
           "They suggest the fee for each buy or sell. If a fee changes, add another one with the new date: old activity isn't touched. With no fee schedule, the suggested fee is €0.",
         )}
       </p>
-      {error && <p className="mb-3 text-red-500">{error}</p>}
+      {error && <p className="mb-3 text-down">{error}</p>}
 
       <Collapsible nested title={t("Mis tarifas", "My fee schedules")} open>
         {feeSchedules.length === 0 ? (
@@ -190,7 +190,7 @@ export default function FeeSchedules() {
             {feeSchedules.map((tf) => (
               <li
                 key={tf.id}
-                className="flex items-center justify-between gap-3 rounded border border-gray-400 p-3"
+                className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-3"
               >
                 <div>
                   <p className="font-semibold">
@@ -201,7 +201,7 @@ export default function FeeSchedules() {
                     {t("Desde el", "From")} {prettyDate(tf.valid_from)}
                   </p>
                 </div>
-                <button onClick={() => remove(tf)} className="text-sm text-red-500 underline">
+                <button onClick={() => remove(tf)} className="text-sm text-down underline">
                   {t("Borrar", "Delete")}
                 </button>
               </li>

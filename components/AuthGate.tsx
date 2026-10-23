@@ -88,7 +88,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
             <button onClick={tryDemo} disabled={signingIn} className={button}>
               {signingIn ? t("Entrando...", "Signing in...") : t("Probar la demo", "Try the demo")}
             </button>
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-down">{error}</p>}
           </div>
         ) : (
           <form onSubmit={signIn} className="flex flex-col gap-3">
@@ -113,7 +113,7 @@ export default function AuthGate({ children }: { children: React.ReactNode }) {
             <button type="submit" disabled={signingIn} className={button}>
               {signingIn ? t("Entrando...", "Signing in...") : t("Entrar", "Sign in")}
             </button>
-            {error && <p className="text-red-500">{error}</p>}
+            {error && <p className="text-down">{error}</p>}
           </form>
         )}
         <div className="mt-6 flex justify-center gap-2 text-sm">{languageButtons()}</div>

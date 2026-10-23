@@ -19,7 +19,7 @@ export function languageButtons() {
       onClick={() => i.id !== chosen && changeLanguage(i.id)}
       aria-pressed={i.id === chosen}
       className={`flex-1 rounded border p-3 text-base ${
-        i.id === chosen ? "border-blue-600 font-semibold text-blue-600" : "border-gray-400"
+        i.id === chosen ? "border-accent font-semibold text-accent" : "border-line"
       }`}
     >
       {i.text}

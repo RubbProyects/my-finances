@@ -199,8 +199,8 @@ export default function MovementForm({
               onClick={() => changeType(id)}
               className={`flex-1 rounded border p-2 text-sm ${
                 type === id
-                  ? "border-blue-600 bg-blue-600 font-semibold text-white"
-                  : "border-gray-400"
+                  ? "border-accent bg-accent font-semibold text-on-accent"
+                  : "border-line"
               }`}
             >
               {movementTypeName(id)}
@@ -228,7 +228,7 @@ export default function MovementForm({
             type="button"
             aria-label={t("Cambiar el signo del importe", "Change the sign of the amount")}
             onClick={() => setAmount(toggleSign(amount))}
-            className="shrink-0 rounded border border-gray-400 px-3 text-base"
+            className="shrink-0 rounded-xl border border-line bg-surface px-3 text-base"
           >
             ±
           </button>
@@ -353,8 +353,8 @@ export default function MovementForm({
         onChange={(e) => setDescription(e.target.value)}
       />
 
-      {error && <p className="text-red-500">{error}</p>}
-      {notice && <p className="text-green-600">{notice}</p>}
+      {error && <p className="text-down">{error}</p>}
+      {notice && <p className="text-up">{notice}</p>}
 
       <div className="flex gap-2">
         {onCancel && (
@@ -362,7 +362,7 @@ export default function MovementForm({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="flex-1 rounded border border-gray-400 p-3 text-base"
+            className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
           >
             {t("Cancelar", "Cancel")}
           </button>

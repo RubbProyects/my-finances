@@ -1,9 +1,10 @@
 // Shared formatting and style helpers
 import { language, locale } from "@/lib/language";
 
-export const field = "rounded border border-gray-400 bg-white p-3 text-base text-black";
+export const field =
+  "rounded-xl border border-line bg-surface p-3 text-base text-foreground placeholder:text-muted";
 export const button =
-  "rounded bg-blue-600 p-3 text-base font-semibold text-white disabled:opacity-50";
+  "rounded-xl bg-accent p-3 text-base font-semibold text-on-accent disabled:opacity-50";
 
 // Turns what was typed into a number (or null if it isn't a number).
 // In Spanish: "1.234,56", "1234,56" or "1234.56" -> 1234.56.

@@ -214,7 +214,7 @@ export default function SimulatorAnalysis() {
       summary={rows.length > 0 && <span className="font-bold">{euros(last.value)}</span>}
       onOpen={setOpen}
     >
-      {viewData.error && <p className="text-red-500">{viewData.error}</p>}
+      {viewData.error && <p className="text-down">{viewData.error}</p>}
       <p className="text-sm opacity-70">
         {t(
           "Calcula cuánto tendrías invirtiendo desde cero, sin contar lo que ya tienes. No cambia nada de tus datos.",
@@ -232,7 +232,7 @@ export default function SimulatorAnalysis() {
         />
       </label>
       {!validYears && (
-        <p className="text-sm text-red-500">
+        <p className="text-sm text-down">
           {t(
             "Escribe un número entero de 1 a 50. Mientras, uso 10.",
             "Enter a whole number from 1 to 50. Meanwhile, I use 10.",
@@ -252,7 +252,7 @@ export default function SimulatorAnalysis() {
           {/* ---------- Result ---------- */}
           {rows.length > 0 && (
             <>
-              <div className="rounded bg-gray-500/10 p-3">
+              <div className="rounded-xl bg-surface-2 p-3">
                 <p className="text-sm opacity-70">
                   {t("En", "In")} {n} {n === 1 ? t("año", "year") : t("años", "years")} (
                   {monthName(endDate.slice(0, 7), language())})
@@ -297,7 +297,7 @@ export default function SimulatorAnalysis() {
               return (
                 <li
                   key={f.key}
-                  className="flex flex-col gap-2 rounded border border-gray-400/50 p-3"
+                  className="flex flex-col gap-2 rounded-xl border border-line p-3"
                 >
                   <div className="flex gap-2">
                     <select
@@ -316,7 +316,7 @@ export default function SimulatorAnalysis() {
                       type="button"
                       aria-label={t("Quitar este activo", "Remove this asset")}
                       onClick={() => setRows(rows.filter((x) => x.key !== f.key))}
-                      className="shrink-0 rounded border border-gray-400 px-3 text-base"
+                      className="shrink-0 rounded-xl border border-line bg-surface px-3 text-base"
                     >
                       ✕
                     </button>
@@ -328,7 +328,7 @@ export default function SimulatorAnalysis() {
                         {t("€ al empezar", "€ at the start")}
                       </span>
                       <input
-                        className={`${field} w-full min-w-0 ${initial === null ? "border-red-500" : ""}`}
+                        className={`${field} w-full min-w-0 ${initial === null ? "border-down" : ""}`}
                         inputMode="decimal"
                         placeholder="0"
                         value={f.initial}
@@ -339,7 +339,7 @@ export default function SimulatorAnalysis() {
                       <span className="text-sm opacity-70">{t("% al año", "% a year")}</span>
                       <div className="flex gap-1">
                         <input
-                          className={`${field} w-full min-w-0 ${own === null ? "border-red-500" : ""}`}
+                          className={`${field} w-full min-w-0 ${own === null ? "border-down" : ""}`}
                           inputMode="decimal"
                           placeholder={pctText(asset?.pct ?? 0)}
                           value={f.pct}
@@ -349,7 +349,7 @@ export default function SimulatorAnalysis() {
                           type="button"
                           aria-label={t("Cambiar el signo del %", "Change the sign of the %")}
                           onClick={() => update(f.key, { pct: toggleSign(f.pct) })}
-                          className="shrink-0 rounded border border-gray-400 px-3 text-base"
+                          className="shrink-0 rounded-xl border border-line bg-surface px-3 text-base"
                         >
                           ±
                         </button>
@@ -358,7 +358,7 @@ export default function SimulatorAnalysis() {
                     <label className="flex min-w-0 flex-col gap-1">
                       <span className="text-sm opacity-70">{t("Aportación", "Contribution")}</span>
                       <input
-                        className={`${field} w-full min-w-0 ${contribution === null ? "border-red-500" : ""}`}
+                        className={`${field} w-full min-w-0 ${contribution === null ? "border-down" : ""}`}
                         inputMode="decimal"
                         placeholder="0"
                         value={f.contribution}
@@ -382,14 +382,14 @@ export default function SimulatorAnalysis() {
                   </div>
 
                   {initial === null || contribution === null ? (
-                    <p className="text-sm text-red-500">
+                    <p className="text-sm text-down">
                       {t(
                         "Los importes deben ser 0 o más, por ejemplo 150",
                         "Amounts must be 0 or more, e.g. 150",
                       )}
                     </p>
                   ) : own === null ? (
-                    <p className="text-sm text-red-500">
+                    <p className="text-sm text-down">
                       {t(
                         "El % debe ser un número mayor que −100, por ejemplo 7 o −2,5",
                         "The % must be a number over −100, e.g. 7 or −2.5",
@@ -426,7 +426,7 @@ export default function SimulatorAnalysis() {
             <button
               type="button"
               onClick={() => setRows([...rows, newRow(viewData.assets[0].id)])}
-              className="flex-1 rounded border border-gray-400 p-3 text-base"
+              className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
             >
               {t("➕ Añadir activo", "➕ Add asset")}
             </button>
@@ -434,7 +434,7 @@ export default function SimulatorAnalysis() {
               <button
                 type="button"
                 onClick={startOver}
-                className="flex-1 rounded border border-gray-400 p-3 text-base"
+                className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
               >
                 {t("Empezar de cero", "Start from scratch")}
               </button>

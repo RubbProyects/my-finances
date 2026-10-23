@@ -118,18 +118,18 @@ export default function Accounts({
 
   return (
     <div className="flex flex-col gap-2">
-      {error && <p className="text-red-500">{error}</p>}
-      {notice && <p className="text-green-600">{notice}</p>}
+      {error && <p className="text-down">{error}</p>}
+      {notice && <p className="text-up">{notice}</p>}
 
       <ul className="flex flex-col gap-2">
         {accounts.map((c) => (
-          <li key={c.id} className="rounded border border-gray-400/50 p-3">
+          <li key={c.id} className="rounded-xl border border-line p-3">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
                 <p className="font-medium">{c.name}</p>
                 {c.platform && <p className="text-sm opacity-70">{c.platform}</p>}
               </div>
-              <p className={`font-bold ${c.balance < 0 ? "text-red-500" : ""}`}>
+              <p className={`font-bold ${c.balance < 0 ? "text-down" : ""}`}>
                 {euros(c.balance)}
               </p>
             </div>
@@ -153,7 +153,7 @@ export default function Accounts({
                   </button>
                   <button
                     type="button"
-                    className="flex-1 rounded border border-gray-400 p-3 text-base"
+                    className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
                     onClick={() => setEditing(null)}
                   >
                     {t("Cancelar", "Cancel")}

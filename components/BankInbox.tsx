@@ -527,21 +527,21 @@ export default function BankInbox({
       {report.map((line) => (
         <p
           key={line}
-          className={`text-sm ${line.startsWith("⚠️") ? "text-orange-500" : "text-green-600"}`}
+          className={`text-sm ${line.startsWith("⚠️") ? "text-orange-500" : "text-up"}`}
         >
           {line}
         </p>
       ))}
       {undo.length > 0 && (
-        <button onClick={undoIgnore} className="self-start text-sm text-blue-600 underline">
+        <button onClick={undoIgnore} className="self-start text-sm text-accent underline">
           {t("Deshacer", "Undo")}
         </button>
       )}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-down">{error}</p>}
 
       {/* ---------- What the bank hasn't booked yet ---------- */}
       {atBank.length > 0 && (
-        <div className="flex flex-col gap-1 rounded border border-dashed border-gray-400/70 p-2 text-sm">
+        <div className="flex flex-col gap-1 rounded border border-dashed border-line p-2 text-sm">
           <p className="font-semibold">{t("⏳ Pendiente en el banco", "⏳ Pending at the bank")}</p>
           <p className="text-xs opacity-70">
             {t(
@@ -576,7 +576,7 @@ export default function BankInbox({
           </p>
 
           {/* ---------- Mark everything before a date as recorded ---------- */}
-          <details className="rounded border border-gray-400/50 p-2 text-sm">
+          <details className="rounded-xl border border-line p-2 text-sm">
             <summary className="cursor-pointer">
               {t(
                 "¿Ya tenías apuntado lo anterior a una fecha?",
@@ -599,7 +599,7 @@ export default function BankInbox({
               <button
                 onClick={ignoreOlder}
                 disabled={!cutoff}
-                className="rounded border border-gray-400 p-2 disabled:opacity-50"
+                className="rounded-xl border border-line bg-surface p-2 disabled:opacity-50"
               >
                 {t("Dar por apuntado lo anterior", "Mark earlier ones as recorded")}
               </button>
@@ -616,7 +616,7 @@ export default function BankInbox({
 
               if (editing === m.id && accountId)
                 return (
-                  <li key={m.id} className="rounded border border-blue-600 p-3 text-sm">
+                  <li key={m.id} className="rounded-xl border border-accent p-3 text-sm">
                     <p className="font-semibold">
                       ✏️ {m.description ?? m.counterparty ?? t("Movimiento", "Transaction")} ·{" "}
                       {withSign(Number(m.amount))}
@@ -651,7 +651,7 @@ export default function BankInbox({
               return (
                 <li
                   key={m.id}
-                  className="flex flex-col gap-2 rounded border border-gray-400/50 p-2 text-sm"
+                  className="flex flex-col gap-2 rounded-xl border border-line p-2 text-sm"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -666,7 +666,7 @@ export default function BankInbox({
                       </p>
                     </div>
                     <p
-                      className={`shrink-0 font-bold ${Number(m.amount) > 0 ? "text-green-600" : ""}`}
+                      className={`shrink-0 font-bold ${Number(m.amount) > 0 ? "text-up" : ""}`}
                     >
                       {withSign(Number(m.amount))}
                     </p>
@@ -680,7 +680,7 @@ export default function BankInbox({
                       )}
                     </p>
                   ) : duplicate ? (
-                    <div className="flex flex-col gap-2 rounded bg-blue-500/10 p-2">
+                    <div className="flex flex-col gap-2 rounded-xl bg-accent/10 p-2">
                       <p>
                         {t("🔁 Ya lo tienes apuntado", "🔁 You already have it")}: «
                         {duplicate.description ?? duplicate.type}» · {prettyDate(duplicate.date)} ·{" "}
@@ -690,13 +690,13 @@ export default function BankInbox({
                         <button
                           onClick={() => link(m, duplicate)}
                           disabled={!idle}
-                          className="rounded bg-blue-600 px-3 py-2 font-semibold text-white disabled:opacity-50"
+                          className="rounded-xl bg-accent px-3 py-2 font-semibold text-on-accent disabled:opacity-50"
                         >
                           {t("Es el mismo", "Same one")}
                         </button>
                         <button
                           onClick={() => setNotDuplicates((o) => [...o, m.id])}
-                          className="text-blue-600 underline"
+                          className="text-accent underline"
                         >
                           {t("Es otro", "Different one")}
                         </button>
@@ -720,7 +720,7 @@ export default function BankInbox({
                       <button
                         onClick={() => record(m, accountId, choiceFromRule(rule, m), null)}
                         disabled={!idle}
-                        className="rounded bg-blue-600 px-3 py-2 font-semibold text-white disabled:opacity-50"
+                        className="rounded-xl bg-accent px-3 py-2 font-semibold text-on-accent disabled:opacity-50"
                       >
                         {busy === m.id ? t("Apuntando...", "Recording...") : t("Apuntar", "Record")}
                       </button>
@@ -732,7 +732,7 @@ export default function BankInbox({
                           setError("");
                         }}
                         disabled={!idle}
-                        className="text-blue-600 underline disabled:opacity-50"
+                        className="text-accent underline disabled:opacity-50"
                       >
                         {rule ? t("Cambiar", "Change") : t("Clasificar", "Classify")}
                       </button>
@@ -740,7 +740,7 @@ export default function BankInbox({
                     <button
                       onClick={() => ignore([m.id], t("🙈 Ignorado", "🙈 Ignored"))}
                       disabled={!idle}
-                      className="text-red-500 underline disabled:opacity-50"
+                      className="text-down underline disabled:opacity-50"
                     >
                       {t("Ignorar", "Ignore")}
                     </button>
@@ -755,14 +755,14 @@ export default function BankInbox({
       {pendingRows.length > visibleCount && (
         <button
           onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
-          className="rounded border border-gray-400 p-3 text-base"
+          className="rounded-xl border border-line bg-surface p-3 text-base"
         >
           {t("Ver más", "Show more")} ({pendingRows.length - visibleCount} {t("más", "more")})
         </button>
       )}
       {/* ---------- What was recorded automatically ---------- */}
       {inbox && inbox.autoRecorded.length > 0 && (
-        <details className="rounded border border-gray-400/50 p-2 text-sm">
+        <details className="rounded-xl border border-line p-2 text-sm">
           <summary className="cursor-pointer">
             {t("🤖 Apuntados solos", "🤖 Auto-recorded")} ({inbox.autoRecorded.length}) ·{" "}
             {t(`últimos ${AUTO_DAYS} días`, `last ${AUTO_DAYS} days`)}
@@ -792,7 +792,7 @@ export default function BankInbox({
               return (
                 <li
                   key={a.id}
-                  className="flex flex-col gap-1 border-t border-gray-400/30 pt-2 first:border-0 first:pt-0"
+                  className="flex flex-col gap-1 border-t border-line pt-2 first:border-0 first:pt-0"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <span className="min-w-0 break-words">
@@ -802,7 +802,7 @@ export default function BankInbox({
                         a.counterparty ??
                         t("Sin descripción", "No description")}
                     </span>
-                    <span className={`shrink-0 ${Number(a.amount) > 0 ? "text-green-600" : ""}`}>
+                    <span className={`shrink-0 ${Number(a.amount) > 0 ? "text-up" : ""}`}>
                       {withSign(Number(a.amount))}
                     </span>
                   </div>
@@ -815,7 +815,7 @@ export default function BankInbox({
                       <button
                         onClick={() => sendBack(a)}
                         disabled={busy !== null}
-                        className="text-blue-600 underline disabled:opacity-50"
+                        className="text-accent underline disabled:opacity-50"
                       >
                         {busy === a.id
                           ? t("Devolviendo...", "Sending back...")
@@ -825,7 +825,7 @@ export default function BankInbox({
                         <button
                           onClick={() => sendBack(a, rule)}
                           disabled={busy !== null}
-                          className="text-red-500 underline disabled:opacity-50"
+                          className="text-down underline disabled:opacity-50"
                         >
                           {t("↩️ A la bandeja y borrar regla", "↩️ Back to inbox and delete rule")}
                         </button>

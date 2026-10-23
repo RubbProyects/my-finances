@@ -185,10 +185,10 @@ function SimpleList({
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center justify-between rounded border border-gray-400 p-3"
+              className="flex items-center justify-between rounded-xl border border-line bg-surface p-3"
             >
               <p className="font-semibold">{item.name}</p>
-              <button onClick={() => remove(item)} className="text-sm text-red-500 underline">
+              <button onClick={() => remove(item)} className="text-sm text-down underline">
                 {t("Borrar", "Delete")}
               </button>
             </li>
@@ -650,7 +650,7 @@ export default function Assets() {
 
   return (
     <div className="flex flex-col gap-3">
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-down">{error}</p>}
 
       {/* ---------- ASSETS ---------- */}
       <Collapsible
@@ -671,7 +671,7 @@ export default function Assets() {
                   type?.identifier === "symbol" && a.price_source === "yahoo" && !a.ticker;
 
                 return (
-                  <li key={a.id} className="rounded border border-gray-400 p-3">
+                  <li key={a.id} className="rounded-xl border border-line bg-surface p-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="min-w-0">
                         <p className="font-semibold">{a.name}</p>
@@ -723,7 +723,7 @@ export default function Assets() {
                         </button>
                         <button
                           onClick={() => removeAsset(a)}
-                          className="text-sm text-red-500 underline"
+                          className="text-sm text-down underline"
                         >
                           {t("Borrar", "Delete")}
                         </button>
@@ -770,7 +770,7 @@ export default function Assets() {
                           <button
                             type="button"
                             onClick={() => setEditingId(null)}
-                            className="flex-1 rounded border border-gray-400 p-3 text-base"
+                            className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
                           >
                             {t("Cancelar", "Cancel")}
                           </button>
@@ -898,7 +898,7 @@ export default function Assets() {
             {types.map((tp) => (
               <li
                 key={tp.id}
-                className="flex items-center justify-between gap-3 rounded border border-gray-400 p-3"
+                className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-3"
               >
                 <div>
                   <p className="font-semibold">
@@ -931,7 +931,7 @@ export default function Assets() {
                   {!tp.base_key && (
                     <button
                       onClick={() => removeType(tp)}
-                      className="text-sm text-red-500 underline"
+                      className="text-sm text-down underline"
                     >
                       {t("Borrar", "Delete")}
                     </button>

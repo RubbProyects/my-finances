@@ -144,8 +144,8 @@ function Chips<T extends string>({
           onClick={() => onChange(o.id)}
           className={`rounded-full border px-3 py-1 text-sm ${
             value === o.id
-              ? "border-blue-600 bg-blue-600 font-semibold text-white"
-              : "border-gray-400"
+              ? "border-accent bg-accent font-semibold text-on-accent"
+              : "border-line"
           }`}
         >
           {t(o.text, o.en)}
@@ -304,7 +304,7 @@ export default function Analysis() {
 
   return (
     <div className="flex flex-col gap-3">
-      {viewData.error && <p className="text-red-500">{viewData.error}</p>}
+      {viewData.error && <p className="text-down">{viewData.error}</p>}
 
       {/* ---------- ALLOCATION ---------- */}
       <Collapsible
@@ -329,7 +329,7 @@ export default function Analysis() {
         ) : (
           <>
             {allocation.chosenIds.length > 0 ? (
-              <div className="rounded-lg border border-blue-600 p-3 text-sm">
+              <div className="rounded-xl border border-accent p-3 text-sm">
                 <p>
                   {t("Lo elegido", "Selected")}:{" "}
                   <span className="font-bold">{euros(allocation.chosenTotal)}</span>
@@ -342,7 +342,7 @@ export default function Analysis() {
                 <button
                   type="button"
                   onClick={() => setChosenGroups([])}
-                  className="text-blue-600 underline"
+                  className="text-accent underline"
                 >
                   {t("Ver todo", "Show all")}
                 </button>
@@ -370,7 +370,7 @@ export default function Analysis() {
                     >
                       <div className="flex w-full justify-between gap-3 text-sm">
                         <span className="min-w-0 truncate">
-                          {chosen && <span className="mr-1 font-bold text-blue-600">✓</span>}
+                          {chosen && <span className="mr-1 font-bold text-accent">✓</span>}
                           {g.name}
                         </span>
                         <span className="shrink-0">
@@ -378,7 +378,7 @@ export default function Analysis() {
                           {!dimmed && <span className="opacity-70"> · {percent(pct)}</span>}
                         </span>
                       </div>
-                      <div className="h-2 w-full rounded bg-gray-400/20">
+                      <div className="h-2 w-full rounded bg-surface-2">
                         {pct > 0 && (
                           <div
                             className="h-2 rounded bg-[#2a78d6] dark:bg-[#3987e5]"
@@ -424,7 +424,7 @@ export default function Analysis() {
                 <button
                   type="button"
                   onClick={() => setChosenAssets([])}
-                  className="text-sm text-blue-600 underline"
+                  className="text-sm text-accent underline"
                 >
                   {t("Todos los activos", "All assets")}
                 </button>
@@ -455,7 +455,7 @@ export default function Analysis() {
                       className="flex w-full items-center justify-between gap-3 text-left text-sm"
                     >
                       <span className="min-w-0 truncate">
-                        {chosen && <span className="mr-1 font-bold text-blue-600">✓</span>}
+                        {chosen && <span className="mr-1 font-bold text-accent">✓</span>}
                         {r.a.name}
                       </span>
                       <span className={`shrink-0 font-semibold ${gainColor(r.gain)}`}>

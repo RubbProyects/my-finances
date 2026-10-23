@@ -97,7 +97,7 @@ export default function EvolutionChart({ series }: { series: SeriesPoint[] }) {
               x2={WIDTH - M.right}
               y1={y(v)}
               y2={y(v)}
-              className="stroke-gray-400/30"
+              className="stroke-line"
               strokeWidth={1}
             />
             <text
@@ -143,7 +143,7 @@ export default function EvolutionChart({ series }: { series: SeriesPoint[] }) {
           x2={x(iCurrent)}
           y1={M.top}
           y2={HEIGHT - M.bottom}
-          className="stroke-gray-400/60"
+          className="stroke-muted/60"
           strokeWidth={1}
         />
         <circle

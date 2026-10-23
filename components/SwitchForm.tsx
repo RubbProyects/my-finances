@@ -266,7 +266,7 @@ export default function SwitchForm({
 
       <div className="flex items-baseline justify-between gap-3">
         <label className="text-sm opacity-70">{t("Participaciones que salen", "Units out")}</label>
-        <button type="button" onClick={fillAllUnits} className="text-sm text-blue-600 underline">
+        <button type="button" onClick={fillAllUnits} className="text-sm text-accent underline">
           {t("Todas", "All")}
         </button>
       </div>
@@ -302,9 +302,9 @@ export default function SwitchForm({
       <label className="text-sm opacity-70">{t("Notas (opcional)", "Notes (optional)")}</label>
       <input className={field} value={notes} onChange={(e) => setNotes(e.target.value)} />
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-down">{error}</p>}
       {notice.map((line) => (
-        <p key={line} className={line.startsWith("⚠️") ? "text-orange-500" : "text-green-600"}>
+        <p key={line} className={line.startsWith("⚠️") ? "text-orange-500" : "text-up"}>
           {line}
         </p>
       ))}
@@ -315,7 +315,7 @@ export default function SwitchForm({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="flex-1 rounded border border-gray-400 p-3 text-base"
+            className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
           >
             {t("Cancelar", "Cancel")}
           </button>
@@ -333,7 +333,7 @@ export default function SwitchForm({
           type="button"
           onClick={unlink}
           disabled={saving}
-          className="self-start text-sm text-red-500 underline disabled:opacity-50"
+          className="self-start text-sm text-down underline disabled:opacity-50"
         >
           {t("Separar en venta y compra sueltas", "Split into separate sell and buy")}
         </button>
@@ -379,7 +379,7 @@ export function LinkSwitch({
   }
 
   return (
-    <div className="flex flex-col gap-2 rounded border border-blue-600 p-2 text-sm">
+    <div className="flex flex-col gap-2 rounded-xl border border-accent p-2 text-sm">
       <p className="font-semibold">
         {t(
           "🔁 ¿A qué compra fue el dinero de esta venta?",
@@ -410,13 +410,13 @@ export function LinkSwitch({
           </p>
         </>
       )}
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-down">{error}</p>}
       <div className="flex gap-2">
         <button
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="flex-1 rounded border border-gray-400 p-3 text-base"
+          className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
         >
           {t("Cancelar", "Cancel")}
         </button>

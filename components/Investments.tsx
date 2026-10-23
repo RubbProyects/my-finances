@@ -188,7 +188,7 @@ function AssetHistory({
           result = { value, gain: value - cost, pct: ((value - cost) / cost) * 100 };
         }
         return (
-          <li key={o.id} className="rounded border border-gray-400/50 p-2 text-sm">
+          <li key={o.id} className="rounded-xl border border-line p-2 text-sm">
             <div className="flex justify-between gap-3">
               <p className="font-medium">
                 {typeName(o.type)}
@@ -326,7 +326,7 @@ function AssetCard({
       {a.price_status && (
         <p className="text-sm text-orange-500">⚠️ {translateMessage(a.price_status, language())}</p>
       )}
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-down">{error}</p>}
 
       {editingPrice ? (
         <form onSubmit={savePrice} className="flex gap-2">
@@ -344,7 +344,7 @@ function AssetCard({
           <button
             type="button"
             onClick={() => setEditingPrice(false)}
-            className="rounded border border-gray-400 p-3"
+            className="rounded-xl border border-line bg-surface p-3"
           >
             ✕
           </button>
@@ -472,7 +472,7 @@ export default function Investments() {
   return (
     <div className="flex flex-col gap-3">
       {/* ---------- TOTAL ---------- */}
-      <div className="rounded border border-gray-400 p-3">
+      <div className="rounded-xl border border-line bg-surface p-3">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-sm opacity-70">
@@ -520,7 +520,7 @@ export default function Investments() {
         )}
       </div>
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-down">{error}</p>}
 
       {/* ---------- ASSETS ---------- */}
       {rows.length === 0 ? (
@@ -592,7 +592,7 @@ export default function Investments() {
         {warnings.map((line) => (
           <p
             key={line}
-            className={`text-sm ${line.startsWith("⚠️") ? "text-orange-500" : "text-green-600"}`}
+            className={`text-sm ${line.startsWith("⚠️") ? "text-orange-500" : "text-up"}`}
           >
             {line}
           </p>
@@ -605,7 +605,7 @@ export default function Investments() {
               const pair = pairOf(o, activities);
               if (editing === o.id && pair)
                 return (
-                  <li key={o.id} className="rounded border border-blue-600 p-3">
+                  <li key={o.id} className="rounded-xl border border-accent p-3">
                     <p className="mb-3 font-semibold">
                       {t("✏️ Editar traspaso", "✏️ Edit switch")}
                     </p>
@@ -630,7 +630,7 @@ export default function Investments() {
                   </li>
                 );
               return editing === o.id ? (
-                <li key={o.id} className="rounded border border-blue-600 p-3">
+                <li key={o.id} className="rounded-xl border border-accent p-3">
                   <p className="mb-3 font-semibold">
                     {t("✏️ Editar operación", "✏️ Edit activity")}
                   </p>
@@ -646,7 +646,7 @@ export default function Investments() {
               ) : (
                 <li
                   key={o.id}
-                  className="flex items-center justify-between gap-3 rounded border border-gray-400/50 p-2 text-sm"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-line p-2 text-sm"
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium">
@@ -676,11 +676,11 @@ export default function Investments() {
                           setLinking(null);
                           setWarnings([]);
                         }}
-                        className="text-blue-600 underline"
+                        className="text-accent underline"
                       >
                         {t("Editar", "Edit")}
                       </button>
-                      <button onClick={() => remove(o)} className="text-red-500 underline">
+                      <button onClick={() => remove(o)} className="text-down underline">
                         {t("Borrar", "Delete")}
                       </button>
                     </div>
@@ -691,7 +691,7 @@ export default function Investments() {
                           setEditing(null);
                           setWarnings([]);
                         }}
-                        className="text-blue-600 underline"
+                        className="text-accent underline"
                       >
                         {t("🔁 Fue un traspaso", "🔁 It was a switch")}
                       </button>
@@ -706,7 +706,7 @@ export default function Investments() {
         {activities.length > visibleCount && (
           <button
             onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
-            className="rounded border border-gray-400 p-3 text-base"
+            className="rounded-xl border border-line bg-surface p-3 text-base"
           >
             {t("Ver más", "Show more")} ({activities.length - visibleCount} {t("más", "more")})
           </button>

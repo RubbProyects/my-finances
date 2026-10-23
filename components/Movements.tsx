@@ -57,7 +57,7 @@ export default function Movements() {
 
   return (
     <div className="flex flex-col gap-3">
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-down">{error}</p>}
 
       {/* ---------- Transactions coming from the bank ---------- */}
       <BankInbox
