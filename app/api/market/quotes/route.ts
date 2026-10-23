@@ -18,10 +18,14 @@ export async function GET(request: NextRequest) {
     if (!(await requestUser(request))) {
       return Response.json({ error: "Sign in again" }, { status: 401 });
     }
-    // Format: symbol:source,symbol:source (at most 30)
+    // Format: symbol:source,symbol:source (at most 30). The source is after the LAST colon
+    // because a Financial Times fund's symbol has one too ("ISIN:EUR").
     const items = (request.nextUrl.searchParams.get("items") ?? "")
       .split(",")
-      .map((s) => s.split(":"))
+      .map((s) => {
+        const i = s.lastIndexOf(":");
+        return i < 0 ? [s, "yahoo"] : [s.slice(0, i), s.slice(i + 1)];
+      })
       .filter(([symbol]) => symbol)
       .slice(0, 30);
 

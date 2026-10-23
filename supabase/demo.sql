@@ -123,6 +123,11 @@ begin
     where a.user_id = u;
 
   -- ---------- 1. Delete everything (children first) ----------
+  -- What visitors can create in the redesign (v2): favorites, and the instant-capture tables
+  delete from public.captures where user_id = u;
+  delete from public.capture_cards where user_id = u;
+  delete from public.capture_tokens where user_id = u;
+  delete from public.favorites where user_id = u;
   delete from public.bank_transactions where user_id = u;
   delete from public.bank_rules where user_id = u;
   delete from public.bank_accounts where user_id = u;
@@ -205,6 +210,13 @@ begin
   values (u, 'ASML', t_stock, p_tr, c_equity, 'ASML.AS', 'NL0010273215', 'yahoo') returning id into a_asml;
   insert into public.assets (user_id, name, type_id, platform_id, category_id, ticker, price_source)
   values (u, 'Bitcoin', t_crypto, p_tr, c_crypto, 'BTC-EUR', 'yahoo') returning id into a_btc;
+
+  -- ---------- 3b. Favorites (the stars in Markets): so the tab isn't empty ----------
+  insert into public.favorites (user_id, symbol, name, source, currency) values
+    (u, 'VWCE.DE', 'Vanguard FTSE All-World UCITS ETF', 'yahoo', 'EUR'),
+    (u, 'ASML.AS', 'ASML Holding', 'yahoo', 'EUR'),
+    (u, 'BTC-EUR', 'Bitcoin EUR', 'yahoo', 'EUR'),
+    (u, 'IE00B03HCZ61:EUR', 'Vanguard Global Stock Index Fund EUR', 'ft', 'EUR');
 
   -- ---------- 4. Price history (weekdays) ----------
   -- A smooth made-up curve that ends at the last real price: yearly trend + waves + noise.
