@@ -14,6 +14,7 @@ import Movements from "@/components/Movements";
 import HideMoney from "@/components/HideMoney";
 import Summary from "@/components/Summary";
 import FeeSchedules from "@/components/FeeSchedules";
+import { refreshIfStale } from "@/lib/auto-prices";
 import { language, t } from "@/lib/language";
 import { translateMessage } from "@/lib/messages";
 import { supabase } from "@/lib/supabase";
@@ -91,6 +92,19 @@ export default function AppNavigation() {
     ensureBaseTypes();
   }, []);
 
+  // Prices refresh by themselves when the app opens (if they are old) and then every hour
+  const [pricesVersion, setPricesVersion] = useState(0);
+  useEffect(() => {
+    const run = () => {
+      if (document.visibilityState === "visible") {
+        refreshIfStale().then((updated) => updated && setPricesVersion((v) => v + 1));
+      }
+    };
+    run();
+    const timer = setInterval(run, 60 * 60 * 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Removes ?bank=... from the address so it doesn't show up again on reload
   useEffect(() => {
     if (bankNotice) window.history.replaceState(null, "", window.location.pathname);
@@ -106,9 +120,9 @@ export default function AppNavigation() {
           <HideMoney />
         </div>
 
-        {current === "summary" && <Summary />}
+        {current === "summary" && <Summary key={pricesVersion} />}
         {current === "markets" && <Markets />}
-        {current === "investments" && <Investments />}
+        {current === "investments" && <Investments key={pricesVersion} />}
         {current === "movements" && <Movements />}
         {current === "analysis" && <Analysis />}
         {current === "settings" && (

@@ -9,6 +9,7 @@ import ActivityForm, {
 } from "@/components/ActivityForm";
 import SwitchForm, { LinkSwitch } from "@/components/SwitchForm";
 import { dayChange, totalDayChange, type DayChange, type Op } from "@/lib/analysis";
+import PricesStamp from "@/components/PricesStamp";
 import { callApi } from "@/lib/api";
 import {
   fetchPortfolio,
@@ -499,6 +500,7 @@ export default function Investments() {
               : t("🔄 Actualizar precios", "🔄 Update prices")}
           </button>
         </div>
+        <PricesStamp className="mt-2 text-xs" />
         {total.noPrice > 0 && (
           <p className="mt-1 text-xs opacity-70">
             {t(

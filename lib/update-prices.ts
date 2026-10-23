@@ -3,6 +3,7 @@
 // Used by the daily cron (every user) and the "Update prices" button (only yours).
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { fetchFtHistory } from "@/lib/ft";
+import { isStale } from "@/lib/prices-info";
 import { fetchHistory, type History } from "@/lib/yahoo";
 
 export type Result = { name: string; added: number; error: string | null };
@@ -23,10 +24,18 @@ function download(
   return fetchHistory(a.ticker, from);
 }
 
-export async function updatePrices(admin: SupabaseClient, userId?: string): Promise<Result[]> {
+// "staleOnly": skips the assets updated recently (Yahoo ones within the hour, funds within six hours),
+// so the hourly refresh and the app opening do the minimum work. The button updates everything.
+export async function updatePrices(
+  admin: SupabaseClient,
+  userId?: string,
+  options: { staleOnly?: boolean } = {},
+): Promise<Result[]> {
   let query = admin
     .from("assets")
-    .select("id, name, ticker, isin, currency, price_source, asset_types!inner(valuation)")
+    .select(
+      "id, name, ticker, isin, currency, price_source, price_updated_at, asset_types!inner(valuation)",
+    )
     .eq("asset_types.valuation", "market")
     .neq("price_source", "manual");
   if (userId) query = query.eq("user_id", userId);
@@ -36,7 +45,9 @@ export async function updatePrices(admin: SupabaseClient, userId?: string): Prom
 
   const results: Result[] = [];
 
+  const now = Date.now();
   for (const a of assets ?? []) {
+    if (options.staleOnly && !isStale(a.price_updated_at, a.price_source, now)) continue;
     try {
       // From when to download: a few days before the last saved price,
       // or from the first activity, or (if there's nothing) the last 30 days

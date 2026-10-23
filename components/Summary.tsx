@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Accounts, { fetchAccounts, type Account } from "@/components/Accounts";
 import AreaChart from "@/components/AreaChart";
 import Collapsible from "@/components/Collapsible";
+import PricesStamp from "@/components/PricesStamp";
 import Sparkline from "@/components/Sparkline";
 import { permissionWarnings } from "@/lib/bank";
 import { change, inRange, RANGES, thin, type ChartPoint, type RangeId } from "@/lib/chart";
@@ -160,6 +161,8 @@ export default function Summary() {
             label={t("Evolución de tus inversiones", "Evolution of your investments")}
           />
         </div>
+
+        <PricesStamp className="px-5 pt-1 text-xs" />
 
         <div className="flex justify-between gap-1 px-4 py-3" role="group">
           {RANGES.map((r) => (
