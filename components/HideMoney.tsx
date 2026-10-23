@@ -62,7 +62,7 @@ export default function HideMoney() {
       aria-pressed={hidden}
       aria-label={label}
       title={label}
-      className="rounded-full border border-gray-400/60 px-3 py-1 text-xl"
+      className="card rounded-full px-3 py-1 text-lg"
     >
       {hidden ? "🙈" : "👁️"}
     </button>

@@ -96,5 +96,5 @@ export function pctWithSign(n: number): string {
 
 // Color class for a gain: green if it gains, red if it loses
 export function gainColor(n: number): string {
-  return n < 0 ? "text-red-500" : "text-green-600";
+  return n < 0 ? "text-down" : "text-up";
 }
