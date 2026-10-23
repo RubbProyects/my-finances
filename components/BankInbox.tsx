@@ -32,6 +32,7 @@ type PendingRow = BankMovement & {
 type AutoRecorded = BankMovement & {
   auto: "recorded" | "linked";
   movement_id: string | null;
+  account: { account_id: string | null } | null;
   movement: {
     type: string;
     description: string | null;
@@ -108,7 +109,7 @@ async function fetchInbox(): Promise<Inbox> {
       supabase
         .from("bank_transactions")
         .select(
-          "id, date, amount, description, counterparty, auto, movement_id, movement:movements(type, description, category_id, account_id, target_account_id)",
+          "id, date, amount, description, counterparty, auto, movement_id, account:bank_accounts(account_id), movement:movements(type, description, category_id, account_id, target_account_id)",
         )
         .not("auto", "is", null)
         .gte("created_at", autoSince)
@@ -399,14 +400,20 @@ export default function BankInbox({
 
   // Sends back to the inbox something that was recorded automatically: if a transaction was created, it's deleted
   // (the devolver_a_bandeja trigger sends it back); if it was only linked, it's unlinked
-  async function sendBack(a: AutoRecorded) {
+  // "rule": the rule that recorded it. If given, it is deleted too, so it stops applying to future ones
+  async function sendBack(a: AutoRecorded, rule: Rule | null = null) {
     setError("");
     setReport([]);
     if (a.auto === "recorded" && a.movement_id) {
-      const question = t(
-        "Se borrará el movimiento apuntado y volverá a la bandeja. ¿Seguro?",
-        "The recorded transaction will be deleted and go back to the inbox. Sure?",
-      );
+      const question = rule
+        ? t(
+            `Se borrará el movimiento apuntado, volverá a la bandeja y se borrará la regla «${rule.text}»: no se aplicará a los próximos movimientos. ¿Seguro?`,
+            `The recorded transaction will be deleted and go back to the inbox, and the rule «${rule.text}» will be deleted: it won't apply to future ones. Sure?`,
+          )
+        : t(
+            "Se borrará el movimiento apuntado y volverá a la bandeja. ¿Seguro?",
+            "The recorded transaction will be deleted and go back to the inbox. Sure?",
+          );
       if (!confirm(question)) return;
       setBusy(a.id);
       const { error } = await supabase.from("movements").delete().eq("id", a.movement_id);
@@ -427,8 +434,24 @@ export default function BankInbox({
         return;
       }
     }
+    let ruleNote = "";
+    if (rule) {
+      const { error: e2 } = await supabase.from("bank_rules").delete().eq("id", rule.id);
+      if (e2) {
+        setError(
+          `${t("Volvió a la bandeja, pero no se pudo borrar la regla", "It went back to the inbox, but the rule couldn't be deleted")}: ${e2.message}`,
+        );
+      } else {
+        ruleNote = ` · ${t("regla", "rule")} «${rule.text}» ${t("borrada", "deleted")}`;
+      }
+    }
     const name = a.description ?? a.counterparty ?? t("Movimiento", "Transaction");
-    setReport([t(`↩️ «${name}» ha vuelto a la bandeja`, `↩️ «${name}» is back in the inbox`)]);
+    setReport([
+      t(
+        `↩️ «${name}» ha vuelto a la bandeja${ruleNote}`,
+        `↩️ «${name}» is back in the inbox${ruleNote}`,
+      ),
+    ]);
     onChange();
     reload();
   }
@@ -746,13 +769,18 @@ export default function BankInbox({
           </summary>
           <p className="mt-2 text-xs opacity-70">
             {t(
-              "Se apuntaron con tus reglas al traerlos del banco. Si alguno está mal, devuélvelo a la bandeja y clasifícalo a mano.",
-              "They were recorded by your rules when fetched from the bank. If one is wrong, send it back to the inbox and classify it by hand.",
+              "Se apuntaron con tus reglas al traerlos del banco. Si alguno está mal, devuélvelo a la bandeja; si ya no quieres la regla, devuélvelo y bórrala a la vez. Todas tus reglas se ven y se editan en Ajustes → Reglas del banco.",
+              "They were recorded by your rules when fetched from the bank. If one is wrong, send it back to the inbox; if you no longer want the rule, send it back and delete it at once. All your rules can be seen and edited in Settings → Bank rules.",
             )}
           </p>
           <ul className="mt-2 flex flex-col gap-2">
             {inbox.autoRecorded.map((a) => {
               const mov = a.movement;
+              // The rule that recorded it (found again from the bank text)
+              const rule =
+                a.auto === "recorded"
+                  ? findRule(inbox.rules, a, a.account?.account_id ?? null)
+                  : null;
               const how =
                 a.auto === "linked"
                   ? t("🔁 Enlazado con su transferencia", "🔁 Linked to its transfer")
@@ -778,17 +806,31 @@ export default function BankInbox({
                       {withSign(Number(a.amount))}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="opacity-70">{how}</span>
-                    <button
-                      onClick={() => sendBack(a)}
-                      disabled={busy !== null}
-                      className="shrink-0 text-blue-600 underline disabled:opacity-50"
-                    >
-                      {busy === a.id
-                        ? t("Devolviendo...", "Sending back...")
-                        : t("↩️ A la bandeja", "↩️ Back to inbox")}
-                    </button>
+                  <div className="flex flex-col gap-1">
+                    <span className="opacity-70">
+                      {how}
+                      {rule ? ` · ${t("regla", "rule")} «${rule.text}»` : ""}
+                    </span>
+                    <span className="flex flex-wrap gap-x-4 gap-y-1">
+                      <button
+                        onClick={() => sendBack(a)}
+                        disabled={busy !== null}
+                        className="text-blue-600 underline disabled:opacity-50"
+                      >
+                        {busy === a.id
+                          ? t("Devolviendo...", "Sending back...")
+                          : t("↩️ A la bandeja", "↩️ Back to inbox")}
+                      </button>
+                      {rule && (
+                        <button
+                          onClick={() => sendBack(a, rule)}
+                          disabled={busy !== null}
+                          className="text-red-500 underline disabled:opacity-50"
+                        >
+                          {t("↩️ A la bandeja y borrar regla", "↩️ Back to inbox and delete rule")}
+                        </button>
+                      )}
+                    </span>
                   </div>
                 </li>
               );
