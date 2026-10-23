@@ -26,6 +26,9 @@ export type BankRow = {
   currency: string;
   description: string | null;
   counterparty: string | null;
+  // The bank's other dates (when it has them): only used to measure how late the bank is
+  value_date?: string | null;
+  transaction_date?: string | null;
 };
 
 // Collapses repeated spaces and trims the ends ("" -> null)
@@ -70,6 +73,8 @@ export function convertTransactions(transactions: BankTransaction[], noDate?: st
       currency: t.transaction_amount?.currency ?? "EUR",
       description,
       counterparty,
+      value_date: t.value_date?.slice(0, 10) ?? null,
+      transaction_date: t.transaction_date?.slice(0, 10) ?? null,
     });
   }
   return rows;

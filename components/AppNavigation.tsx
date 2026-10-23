@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Assets from "@/components/Assets";
 import Analysis from "@/components/Analysis";
+import CaptureSettings from "@/components/CaptureSettings";
 import Banks, { type BankNotice } from "@/components/Banks";
 import ExpenseCategories from "@/components/ExpenseCategories";
 import LanguagePicker from "@/components/LanguagePicker";
@@ -116,6 +117,7 @@ export default function AppNavigation() {
             <ExpenseCategories />
             <FeeSchedules />
             <Banks notice={bankNotice} />
+            <CaptureSettings />
             <LanguagePicker />
             <MyAccount />
           </>

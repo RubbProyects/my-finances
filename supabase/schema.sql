@@ -93,7 +93,39 @@ create table public.bank_transactions (
   counterparty text,
   status text default 'pending'::text not null,
   movement_id uuid,
-  auto text
+  auto text,
+  value_date date,
+  transaction_date date
+);
+
+create table public.capture_cards (
+  id uuid default gen_random_uuid() not null,
+  card text not null,
+  account_id uuid,
+  created_at timestamp with time zone default now() not null,
+  user_id uuid default auth.uid() not null
+);
+
+create table public.capture_tokens (
+  id uuid default gen_random_uuid() not null,
+  token_hash text not null,
+  last_used_at timestamp with time zone,
+  created_at timestamp with time zone default now() not null,
+  user_id uuid default auth.uid() not null
+);
+
+create table public.captures (
+  id uuid default gen_random_uuid() not null,
+  date date not null,
+  amount numeric(12,2) not null,
+  merchant text,
+  card text,
+  status text default 'open'::text not null,
+  account_id uuid,
+  movement_id uuid,
+  bank_transaction_id uuid,
+  created_at timestamp with time zone default now() not null,
+  user_id uuid default auth.uid() not null
 );
 
 create table public.categories (
@@ -410,6 +442,9 @@ alter table public.bank_accounts add constraint bank_accounts_pkey PRIMARY KEY (
 alter table public.bank_connections add constraint bank_connections_pkey PRIMARY KEY (id);
 alter table public.bank_rules add constraint bank_rules_pkey PRIMARY KEY (id);
 alter table public.bank_transactions add constraint bank_transactions_pkey PRIMARY KEY (id);
+alter table public.capture_cards add constraint capture_cards_pkey PRIMARY KEY (id);
+alter table public.capture_tokens add constraint capture_tokens_pkey PRIMARY KEY (id);
+alter table public.captures add constraint captures_pkey PRIMARY KEY (id);
 alter table public.categories add constraint categories_pkey PRIMARY KEY (id);
 alter table public.expense_categories add constraint expense_categories_pkey PRIMARY KEY (id);
 alter table public.favorites add constraint favorites_pkey PRIMARY KEY (id);
@@ -424,6 +459,8 @@ alter table public.bank_accounts add constraint bank_accounts_fingerprint_key UN
 alter table public.bank_connections add constraint bank_connections_state_key UNIQUE (state);
 alter table public.bank_rules add constraint bank_rules_text_key UNIQUE (user_id, text);
 alter table public.bank_transactions add constraint bank_transactions_bank_ref_key UNIQUE (bank_account_id, bank_ref);
+alter table public.capture_cards add constraint capture_cards_user_card_key UNIQUE (user_id, card);
+alter table public.capture_tokens add constraint capture_tokens_token_hash_key UNIQUE (token_hash);
 alter table public.categories add constraint categories_user_name_key UNIQUE (user_id, name);
 alter table public.expense_categories add constraint expense_categories_user_name_key UNIQUE (user_id, name);
 alter table public.favorites add constraint favorites_user_symbol_key UNIQUE (user_id, symbol);
@@ -455,6 +492,8 @@ alter table public.movements add constraint movements_type_check CHECK ((type = 
 alter table public.transactions add constraint transactions_rules_check CHECK (((fee >= (0)::numeric) AND (withholding >= (0)::numeric) AND (((type = ANY (ARRAY['buy'::text, 'sell'::text])) AND (amount > (0)::numeric) AND (units > (0)::numeric) AND (price > (0)::numeric)) OR ((type = 'dividend'::text) AND (amount > (0)::numeric)) OR ((type = 'split'::text) AND (factor > (0)::numeric) AND (amount = (0)::numeric) AND (units IS NOT NULL)))));
 alter table public.transactions add constraint transactions_switch_check CHECK (((switch_id IS NULL) OR (type = ANY (ARRAY['buy'::text, 'sell'::text]))));
 alter table public.asset_types add constraint asset_types_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+alter table public.captures add constraint captures_amount_check CHECK ((amount > (0)::numeric));
+alter table public.captures add constraint captures_status_check CHECK ((status = ANY (ARRAY['open'::text, 'matched'::text, 'unmapped'::text, 'foreign'::text])));
 alter table public.assets add constraint assets_category_id_fkey FOREIGN KEY (category_id) REFERENCES public.categories(id);
 alter table public.assets add constraint assets_platform_id_fkey FOREIGN KEY (platform_id) REFERENCES public.platforms(id);
 alter table public.assets add constraint assets_type_id_fkey FOREIGN KEY (type_id) REFERENCES public.asset_types(id);
@@ -469,6 +508,13 @@ alter table public.bank_rules add constraint bank_rules_user_id_fkey FOREIGN KEY
 alter table public.bank_transactions add constraint bank_transactions_bank_account_id_fkey FOREIGN KEY (bank_account_id) REFERENCES public.bank_accounts(id) ON DELETE CASCADE;
 alter table public.bank_transactions add constraint bank_transactions_movement_id_fkey FOREIGN KEY (movement_id) REFERENCES public.movements(id) ON DELETE SET NULL;
 alter table public.bank_transactions add constraint bank_transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+alter table public.capture_cards add constraint capture_cards_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.assets(id) ON DELETE SET NULL;
+alter table public.capture_cards add constraint capture_cards_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+alter table public.capture_tokens add constraint capture_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+alter table public.captures add constraint captures_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.assets(id) ON DELETE SET NULL;
+alter table public.captures add constraint captures_bank_transaction_id_fkey FOREIGN KEY (bank_transaction_id) REFERENCES public.bank_transactions(id) ON DELETE SET NULL;
+alter table public.captures add constraint captures_movement_id_fkey FOREIGN KEY (movement_id) REFERENCES public.movements(id) ON DELETE SET NULL;
+alter table public.captures add constraint captures_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table public.categories add constraint categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table public.expense_categories add constraint expense_categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 alter table public.favorites add constraint favorites_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
@@ -495,6 +541,10 @@ CREATE INDEX bank_connections_user_id_idx ON public.bank_connections USING btree
 CREATE INDEX bank_rules_user_id_idx ON public.bank_rules USING btree (user_id);
 CREATE INDEX bank_transactions_movement_id_idx ON public.bank_transactions USING btree (movement_id);
 CREATE INDEX bank_transactions_user_id_idx ON public.bank_transactions USING btree (user_id);
+CREATE INDEX capture_cards_user_id_idx ON public.capture_cards USING btree (user_id);
+CREATE INDEX capture_tokens_user_id_idx ON public.capture_tokens USING btree (user_id);
+CREATE INDEX captures_movement_id_idx ON public.captures USING btree (movement_id);
+CREATE INDEX captures_user_id_idx ON public.captures USING btree (user_id);
 CREATE INDEX categories_user_id_idx ON public.categories USING btree (user_id);
 CREATE INDEX expense_categories_user_id_idx ON public.expense_categories USING btree (user_id);
 CREATE INDEX favorites_user_id_idx ON public.favorites USING btree (user_id);
@@ -597,6 +647,9 @@ alter table public.bank_accounts enable row level security;
 alter table public.bank_connections enable row level security;
 alter table public.bank_rules enable row level security;
 alter table public.bank_transactions enable row level security;
+alter table public.capture_cards enable row level security;
+alter table public.capture_tokens enable row level security;
+alter table public.captures enable row level security;
 alter table public.categories enable row level security;
 alter table public.expense_categories enable row level security;
 alter table public.favorites enable row level security;
@@ -623,6 +676,15 @@ create policy "own rows only" on public.bank_rules as permissive for all to auth
   using ((user_id = ( SELECT auth.uid() AS uid)))
   with check ((user_id = ( SELECT auth.uid() AS uid)));
 create policy "own rows only" on public.bank_transactions as permissive for all to authenticated
+  using ((user_id = ( SELECT auth.uid() AS uid)))
+  with check ((user_id = ( SELECT auth.uid() AS uid)));
+create policy "own rows only" on public.capture_cards as permissive for all to authenticated
+  using ((user_id = ( SELECT auth.uid() AS uid)))
+  with check ((user_id = ( SELECT auth.uid() AS uid)));
+create policy "own rows only" on public.capture_tokens as permissive for all to authenticated
+  using ((user_id = ( SELECT auth.uid() AS uid)))
+  with check ((user_id = ( SELECT auth.uid() AS uid)));
+create policy "own rows only" on public.captures as permissive for all to authenticated
   using ((user_id = ( SELECT auth.uid() AS uid)))
   with check ((user_id = ( SELECT auth.uid() AS uid)));
 create policy "own rows only" on public.categories as permissive for all to authenticated
@@ -679,6 +741,15 @@ grant delete, insert, maintain, references, select, trigger, truncate, update on
 revoke all on table public.bank_transactions from public, anon, authenticated, service_role;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.bank_transactions to authenticated;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.bank_transactions to service_role;
+revoke all on table public.capture_cards from public, anon, authenticated, service_role;
+grant delete, insert, select, update on table public.capture_cards to authenticated;
+grant delete, insert, select, update on table public.capture_cards to service_role;
+revoke all on table public.capture_tokens from public, anon, authenticated, service_role;
+grant delete, insert, select, update on table public.capture_tokens to authenticated;
+grant delete, insert, select, update on table public.capture_tokens to service_role;
+revoke all on table public.captures from public, anon, authenticated, service_role;
+grant delete, insert, select, update on table public.captures to authenticated;
+grant delete, insert, select, update on table public.captures to service_role;
 revoke all on table public.categories from public, anon, authenticated, service_role;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.categories to anon;
 grant delete, insert, maintain, references, select, trigger, truncate, update on table public.categories to authenticated;
