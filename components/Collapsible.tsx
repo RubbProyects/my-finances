@@ -23,7 +23,9 @@ export default function Collapsible({
     <details
       open={open}
       onToggle={(e) => onOpen?.((e.currentTarget as HTMLDetailsElement).open)}
-      className={`group rounded border ${nested ? "border-gray-400/50" : "border-gray-400"}`}
+      className={`group ${
+        nested ? "rounded-xl border border-line bg-surface-2/60" : "card"
+      }`}
     >
       <summary
         className={`flex cursor-pointer list-none items-center justify-between gap-3 p-3 [&::-webkit-details-marker]:hidden ${

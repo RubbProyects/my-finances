@@ -15,6 +15,7 @@ import {
   type ChosenBalance,
   type BankTransaction,
 } from "@/lib/bank";
+import { reconcileCaptures } from "@/lib/capture-server";
 import { linkKey, autoPlan, type AppMovement, type BankMovement, type Rule } from "@/lib/classify";
 import { BankError, callBank } from "@/lib/enable-banking";
 import { today } from "@/lib/format";
@@ -183,11 +184,24 @@ export async function fetchMovements(
       .in("id", [...usedConnections]);
   }
 
+  // Expenses the iPhone shortcut already recorded are paired with their bank movement first,
+  // so they are linked instead of being recorded again
+  let paired = 0;
+  let waiting = newOnes;
+  try {
+    const r = await reconcileCaptures(admin, userId);
+    paired = r.matched;
+    waiting = newOnes.filter((n) => !r.bankIds.has(n.id));
+  } catch {
+    // If pairing fails they stay in the inbox as usual
+  }
+
   // New items that match a rule are recorded automatically. If it fails, they stay in the inbox.
-  let automatic: AutoResult = { recorded: 0, linked: 0, error: null };
-  if (newOnes.length > 0) {
+  let automatic: AutoResult = { recorded: 0, linked: paired, error: null };
+  if (waiting.length > 0) {
     try {
-      automatic = await autoRecord(admin, userId, accounts, newOnes);
+      automatic = await autoRecord(admin, userId, accounts, waiting);
+      automatic.linked += paired;
     } catch (e) {
       automatic.error = e instanceof Error ? e.message : String(e);
     }

@@ -1,0 +1,36 @@
+name: Refresh prices
+
+# Vercel's free plan only allows one cron a day, so this timer calls the app every hour
+# (from 07:07 to 21:07 UTC, every day: crypto also moves on weekends). The app itself only
+# updates prices that are old enough and never reads the bank.
+# Secrets (Settings → Secrets and variables → Actions):
+#   APP_URL      the address of the app, e.g. https://financial-app.vercel.app (no slash at the end)
+#   CRON_SECRET  the same CRON_SECRET the app has in Vercel
+on:
+  schedule:
+    - cron: "7 7-21 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: refresh-prices
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Call the app
+        env:
+          APP_URL: ${{ secrets.APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "Missing the APP_URL or CRON_SECRET secret"
+            exit 1
+          fi
+          curl --fail-with-body --silent --show-error --max-time 300 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$APP_URL/api/cron/refresh-prices"

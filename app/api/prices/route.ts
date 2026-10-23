@@ -10,7 +10,9 @@ export async function POST(request: Request) {
     if (!userId) {
       return Response.json({ error: "Sign in again" }, { status: 401 });
     }
-    const results = await updatePrices(supabaseAdmin(), userId);
+    // ?stale=1 (when the app opens): only what is old enough; the button updates everything
+    const staleOnly = new URL(request.url).searchParams.get("stale") === "1";
+    const results = await updatePrices(supabaseAdmin(), userId, { staleOnly });
     return Response.json({ results });
   } catch (e) {
     const error = e instanceof Error ? e.message : String(e);

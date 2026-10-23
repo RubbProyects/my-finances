@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 // Browser bar color: the app's background in light and dark mode
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f6fa" },
+    { media: "(prefers-color-scheme: dark)", color: "#070b14" },
   ],
 };
 

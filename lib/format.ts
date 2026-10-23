@@ -46,6 +46,22 @@ export function price(n: number): string {
   }).format(n);
 }
 
+// Price in the currency the market quotes it in ("USD" -> "$1,234.50"); small prices get more decimals
+export function marketPrice(n: number, currency: string | null): string {
+  // London quotes in pence ("GBp" or "GBX"): shown as 1,234.5p
+  if (currency === "GBp" || currency === "GBX") {
+    return `${formatter("pence", { maximumFractionDigits: 2 }).format(n)}p`;
+  }
+  const code = currency && /^[A-Z]{3}$/.test(currency) ? currency : "EUR";
+  const digits = n < 1 ? 4 : 2;
+  return formatter(`market-${code}-${digits}`, {
+    style: "currency",
+    currency: code,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: digits,
+  }).format(n);
+}
+
 // 0.123456 -> "0,123456" (in English, "0.123456")
 export function units(n: number): string {
   return formatter("units", { maximumFractionDigits: 6 }).format(n);
@@ -96,5 +112,5 @@ export function pctWithSign(n: number): string {
 
 // Color class for a gain: green if it gains, red if it loses
 export function gainColor(n: number): string {
-  return n < 0 ? "text-red-500" : "text-green-600";
+  return n < 0 ? "text-down" : "text-up";
 }
