@@ -98,6 +98,8 @@ export type MarketChart = {
   symbol: string;
   name: string;
   exchange: string;
+  // Yahoo's instrument type: ETF, EQUITY, CRYPTOCURRENCY, MUTUALFUND...
+  type: string | null;
   currency: string | null;
   price: number | null;
   previousClose: number | null;
@@ -116,6 +118,7 @@ type MarketChartResponse = {
         shortName?: string;
         exchangeName?: string;
         fullExchangeName?: string;
+        instrumentType?: string;
         regularMarketPrice?: number;
         chartPreviousClose?: number;
         previousClose?: number;
@@ -148,6 +151,7 @@ export async function fetchMarketChart(symbol: string, range: ChartRange): Promi
     symbol: meta.symbol ?? symbol,
     name: meta.longName ?? meta.shortName ?? symbol,
     exchange: meta.fullExchangeName ?? meta.exchangeName ?? "",
+    type: meta.instrumentType ?? null,
     currency: meta.currency ?? null,
     price: meta.regularMarketPrice ?? points[points.length - 1]?.value ?? null,
     previousClose: meta.chartPreviousClose ?? meta.previousClose ?? null,

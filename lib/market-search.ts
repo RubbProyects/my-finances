@@ -37,12 +37,6 @@ const FT_EXCHANGES: Record<string, { suffix: string; label: string }> = {
   TOR: { suffix: ".TO", label: "Toronto" },
 };
 
-// European exchanges (Yahoo suffixes): a repeated ticker there is almost always the same product
-const EUROPE = new Set([
-  ".L", ".DE", ".F", ".MU", ".HA", ".HM", ".SG", ".DU", ".BE", ".MI", ".AS", ".PA", ".SW",
-  ".MC", ".IR", ".VI", ".BR", ".LS", ".ST", ".CO", ".HE", ".OL",
-]);
-
 const FUND_ISIN =/^[A-Z]{2}[A-Z0-9]{9}[0-9]:[A-Z]{3}$/;
 const MAX_RESULTS = 40;
 
@@ -134,20 +128,19 @@ export async function searchMarkets(query: string): Promise<MarketResult[]> {
     ),
   ].slice(0, 4);
   const siblings = await Promise.all(bases.map((b) => searchSymbols(b, 25).catch(() => [])));
-  // Another company can use the same ticker (AIAI also exists on NASDAQ): a listing is only
-  // accepted if it is the same kind of product and its name shares a word with a known one
+  // Another company can use the same ticker (AIAI also exists on NASDAQ, XMLD in London is a
+  // different ETF): a sibling listing must be the same kind of product, and it is only kept
+  // after its price is checked below
   const seeds = [...found.values()];
+  const siblingKeys = new Set<string>();
   siblings.forEach((list, i) => {
     const known = seeds.filter((r) => base(r.symbol) === bases[i]);
     for (const c of list) {
-      if (base(c.symbol) !== bases[i]) continue;
-      const suffix = c.symbol.includes(".") ? c.symbol.slice(c.symbol.lastIndexOf(".")) : "";
-      const sameKind = known.some(
-        (k) =>
-          (!k.type || !c.type || k.type === c.type) &&
-          (sharesWord(k.name, c.name) || EUROPE.has(suffix)),
-      );
-      if (sameKind) add({ ...c, source: "yahoo", currency: null, price: null });
+      if (base(c.symbol) !== bases[i] || found.has(`yahoo:${c.symbol}`)) continue;
+      if (known.some((k) => !k.type || !c.type || k.type === c.type)) {
+        add({ ...c, source: "yahoo", currency: null, price: null });
+        siblingKeys.add(`yahoo:${c.symbol}`);
+      }
     }
   });
 
@@ -172,5 +165,21 @@ export async function searchMarkets(query: string): Promise<MarketResult[]> {
       }
     }),
   );
-  return checked.filter((r): r is MarketResult => r !== null);
+  const results = checked.filter((r): r is MarketResult => r !== null);
+
+  // A sibling is the same product if it trades at about the same price as the known listings in
+  // the same currency (within 25%). With nothing to compare against, its name has to share a word.
+  const known = results.filter((r) => !siblingKeys.has(`${r.source}:${r.symbol}`));
+  return results.filter((r) => {
+    if (!siblingKeys.has(`${r.source}:${r.symbol}`)) return true;
+    const refs = known
+      .filter((k) => k.price !== null && k.currency === r.currency && base(k.symbol) === base(r.symbol))
+      .map((k) => k.price as number)
+      .sort((x, y) => x - y);
+    if (r.price !== null && refs.length > 0 && r.currency !== "GBp") {
+      const median = refs[refs.length >> 1];
+      return r.price >= median * 0.8 && r.price <= median * 1.25;
+    }
+    return known.some((k) => base(k.symbol) === base(r.symbol) && sharesWord(k.name, r.name));
+  });
 }

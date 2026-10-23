@@ -134,6 +134,7 @@ export default function ActivityForm({
   accounts,
   feeSchedules,
   activity,
+  initialAssetId,
   onSave,
   onCancel,
 }: {
@@ -141,13 +142,14 @@ export default function ActivityForm({
   accounts: SelectOption[];
   feeSchedules: FeeSchedule[];
   activity?: EditableActivity;
+  initialAssetId?: string; // the asset already chosen (when coming from Markets)
   onSave: (warnings: string[]) => void; // warnings: the splits that were recalculated
   onCancel?: () => void;
 }) {
   const o = activity;
   const hasAmount = o && o.type !== "split";
   const [type, setType] = useState<ActivityType>(o?.type ?? "buy");
-  const [assetId, setAssetId] = useState(o?.asset_id ?? "");
+  const [assetId, setAssetId] = useState(o?.asset_id ?? initialAssetId ?? "");
   const [date, setDate] = useState(o?.date ?? today());
   const [amount, setAmount] = useState(hasAmount ? eurosText(o.amount) : "");
   const [price, setPrice] = useState(o ? text(o.price) : "");
