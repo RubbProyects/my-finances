@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AreaChart from "@/components/AreaChart";
+import RecordActivity from "@/components/RecordActivity";
 import { callApi } from "@/lib/api";
 import type { ChartPoint } from "@/lib/chart";
 import { gainColor, marketPrice, pctWithSign } from "@/lib/format";
@@ -159,6 +160,19 @@ export default function MarketDetail({
           ))}
         </div>
       </section>
+
+      {data && (
+        <RecordActivity
+          key={item.symbol}
+          listing={{
+            symbol: item.symbol,
+            name: data.name,
+            source: item.source,
+            currency: data.currency,
+            type: data.type,
+          }}
+        />
+      )}
 
       <p className="px-1 text-xs text-muted">
         {item.source === "ft"

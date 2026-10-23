@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Collapsible from "@/components/Collapsible";
+import PositionChart from "@/components/PositionChart";
 import ActivityForm, {
   adjustSplitsWithNotice,
   typeName,
@@ -307,6 +308,7 @@ function AssetCard({
         )
       }
     >
+      {open && <PositionChart assetId={a.id} version={version} />}
       <div className="text-sm opacity-80">
         <p>
           {fmtPart(pos.units)} {t("participaciones", "units")} · {t("coste", "cost")}{" "}
@@ -545,8 +547,8 @@ export default function Investments() {
         {assets.length === 0 ? (
           <p className="opacity-70">
             {t(
-              "Crea primero en Ajustes un activo que cotice (ETF, fondo, acción, crypto...).",
-              "First create a listed asset in Settings (ETF, fund, stock, crypto...).",
+              "Todavía no tienes ningún activo: búscalo en Mercados y pulsa «Apuntar una operación» (se crea solo). También puedes crearlo en Ajustes.",
+              "You don't have any asset yet: find it in Markets and tap «Record an activity» (it creates itself). You can also create one in Settings.",
             )}
           </p>
         ) : (

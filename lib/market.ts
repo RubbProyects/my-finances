@@ -40,6 +40,7 @@ export async function marketChart(
     symbol: symbol.toUpperCase(),
     name: h.name || symbol.toUpperCase(),
     exchange: "Financial Times",
+    type: "FUND",
     currency: h.currency,
     price: last?.value ?? null,
     previousClose: prev?.value ?? null,
