@@ -48,6 +48,10 @@ export function price(n: number): string {
 
 // Price in the currency the market quotes it in ("USD" -> "$1,234.50"); small prices get more decimals
 export function marketPrice(n: number, currency: string | null): string {
+  // London quotes in pence ("GBp" or "GBX"): shown as 1,234.5p
+  if (currency === "GBp" || currency === "GBX") {
+    return `${formatter("pence", { maximumFractionDigits: 2 }).format(n)}p`;
+  }
   const code = currency && /^[A-Z]{3}$/.test(currency) ? currency : "EUR";
   const digits = n < 1 ? 4 : 2;
   return formatter(`market-${code}-${digits}`, {

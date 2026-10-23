@@ -29,8 +29,10 @@ export async function marketChart(
 ): Promise<MarketChart> {
   if (source === "yahoo") return fetchMarketChart(symbol, range);
 
-  // A fund only has one value per day, so the 1 day range shows its last week
-  const h = await fetchFtHistory(symbol.toUpperCase(), new Date(Date.now() - FT_DAYS[range] * DAY));
+  // A fund only has one value per day, so the 1 day range shows its last week.
+  // Its symbol is "ISIN:CURRENCY" (the same fund can exist in several currencies).
+  const [isin, currency] = symbol.toUpperCase().split(":");
+  const h = await fetchFtHistory(isin, new Date(Date.now() - FT_DAYS[range] * DAY), currency || "EUR");
   const points = h.prices.map((p) => ({ t: new Date(`${p.date}T00:00:00Z`).getTime(), value: p.price }));
   const last = points[points.length - 1];
   const prev = points[points.length - 2];

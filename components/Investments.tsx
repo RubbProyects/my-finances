@@ -282,6 +282,12 @@ function AssetCard({
       title={
         <span>
           <span className="block">{a.name}</span>
+          {last && (
+            <span className="block text-sm font-semibold">
+              {fmtPrice(last.price)}
+              <span className="font-normal opacity-70"> {t("/ participación", "/ unit")}</span>
+            </span>
+          )}
           <span className="block text-sm font-normal opacity-70">{a.platforms?.name ?? ""}</span>
         </span>
       }

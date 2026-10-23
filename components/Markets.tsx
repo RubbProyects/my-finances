@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import MarketDetail, { type Instrument } from "@/components/MarketDetail";
 import Sparkline from "@/components/Sparkline";
-import type { MarketResult } from "@/app/api/market/search/route";
+import type { MarketResult } from "@/lib/market-search";
 import type { Quote } from "@/app/api/market/quotes/route";
 import { callApi } from "@/lib/api";
 import {
@@ -153,13 +153,23 @@ export default function Markets() {
                   <button
                     type="button"
                     onClick={() => setOpen({ symbol: r.symbol, name: r.name, source: r.source })}
-                    className="min-w-0 flex-1 p-4 text-left"
+                    className="flex min-w-0 flex-1 items-center gap-3 p-4 text-left"
                   >
-                    <p className="truncate font-medium">{r.name || r.symbol}</p>
-                    <p className="truncate text-xs text-muted">
-                      {r.symbol} · {r.exchange}
-                      {r.type ? ` · ${r.type}` : ""}
-                    </p>
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{r.name || r.symbol}</span>
+                      <span className="block truncate text-xs text-muted">
+                        {r.symbol} · {r.exchange}
+                        {r.type ? ` · ${r.type}` : ""}
+                      </span>
+                    </span>
+                    <span className="shrink-0 text-right">
+                      {r.price !== null && (
+                        <span className="block font-bold">{marketPrice(r.price, r.currency)}</span>
+                      )}
+                      {r.currency && (
+                        <span className="block text-xs text-muted">{r.currency}</span>
+                      )}
+                    </span>
                   </button>
                   <button
                     type="button"

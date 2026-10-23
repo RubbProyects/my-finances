@@ -163,9 +163,9 @@ export type Candidate = {
 };
 
 // Finds symbols from an ISIN or a text (e.g. "bitcoin")
-export async function searchSymbols(query: string): Promise<Candidate[]> {
+export async function searchSymbols(query: string, count = 10): Promise<Candidate[]> {
   const json = (await fetchJson(
-    `/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=10&newsCount=0&listsCount=0`,
+    `/v1/finance/search?q=${encodeURIComponent(query)}&quotesCount=${count}&newsCount=0&listsCount=0`,
   )) as {
     quotes?: {
       symbol?: string;
