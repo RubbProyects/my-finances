@@ -31,6 +31,8 @@ export type PortfolioRow = {
   value: number | null;
   gain: number | null;
   pct: number | null;
+  // Euros of this asset that were bought with a fund switch (not new money)
+  switchedIn: number;
 };
 
 export type Portfolio = {
@@ -39,8 +41,27 @@ export type Portfolio = {
   error: string;
 };
 
+// Euros bought with a fund switch, by asset (the buying half of each switch)
+async function fetchSwitchedIn(): Promise<Map<string, number>> {
+  const byAsset = new Map<string, number>();
+  for (let i = 0; ; i += 1000) {
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("asset_id, amount, fee")
+      .eq("type", "buy")
+      .not("switch_id", "is", null)
+      .order("id")
+      .range(i, i + 999);
+    if (error) return byAsset;
+    for (const o of data ?? []) {
+      byAsset.set(o.asset_id, (byAsset.get(o.asset_id) ?? 0) + Number(o.amount) + Number(o.fee));
+    }
+    if ((data?.length ?? 0) < 1000) return byAsset;
+  }
+}
+
 export async function fetchPortfolio(): Promise<Portfolio> {
-  const [assetsRes, positionsRes, pricesRes] = await Promise.all([
+  const [assetsRes, positionsRes, pricesRes, switchedRes] = await Promise.all([
     supabase
       .from("assets")
       .select(
@@ -50,6 +71,7 @@ export async function fetchPortfolio(): Promise<Portfolio> {
       .order("created_at"),
     supabase.from("positions").select("*"),
     supabase.from("latest_prices").select("*"),
+    fetchSwitchedIn(),
   ]);
   const failure = [assetsRes, positionsRes, pricesRes].map((r) => r.error).find(Boolean);
 
@@ -77,23 +99,11 @@ export async function fetchPortfolio(): Promise<Portfolio> {
       const value = last ? pos.units * last.price : null;
       const gain = value !== null ? value + pos.sold + pos.dividends - pos.bought : null;
       const pct = gain !== null && pos.bought > 0 ? (gain / pos.bought) * 100 : null;
-      return { a, pos, latest: last, value, gain, pct };
+      return { a, pos, latest: last, value, gain, pct, switchedIn: switchedRes.get(a.id) ?? 0 };
     })
     .filter((f) => f !== null);
 
   return { assets, rows, error: failure ? failure.message : "" };
 }
 
-// Portfolio totals (only counts assets that already have a price)
-export function portfolioTotals(rows: PortfolioRow[]) {
-  const withPrice = rows.filter((f) => f.value !== null);
-  const value = withPrice.reduce((s, f) => s + (f.value ?? 0), 0);
-  const bought = withPrice.reduce((s, f) => s + f.pos.bought, 0);
-  const gain = withPrice.reduce((s, f) => s + (f.gain ?? 0), 0);
-  return {
-    value,
-    gain,
-    pct: bought > 0 ? (gain / bought) * 100 : null,
-    noPrice: rows.length - withPrice.length,
-  };
-}
+export { portfolioTotals } from "@/lib/portfolio-totals";
