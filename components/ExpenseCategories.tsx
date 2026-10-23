@@ -68,7 +68,7 @@ export default function ExpenseCategories() {
       title={t("🛒 Categorías de gasto", "🛒 Spending categories")}
       summary={<span className="text-sm opacity-60">{categories.length}</span>}
     >
-      {error && <p className="mb-3 text-red-500">{error}</p>}
+      {error && <p className="mb-3 text-down">{error}</p>}
 
       {categories.length === 0 ? (
         <p className="mb-4 opacity-70">{t("Todavía no hay ninguna.", "None yet.")}</p>
@@ -77,10 +77,10 @@ export default function ExpenseCategories() {
           {categories.map((c) => (
             <li
               key={c.id}
-              className="flex items-center justify-between rounded border border-gray-400 p-3"
+              className="flex items-center justify-between rounded-xl border border-line bg-surface p-3"
             >
               <p className="font-semibold">{c.name}</p>
-              <button onClick={() => remove(c)} className="text-sm text-red-500 underline">
+              <button onClick={() => remove(c)} className="text-sm text-down underline">
                 {t("Borrar", "Delete")}
               </button>
             </li>

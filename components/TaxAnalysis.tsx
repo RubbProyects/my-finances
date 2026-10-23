@@ -115,7 +115,7 @@ export default function TaxAnalysis() {
       summary={<span className="text-sm opacity-60">{chosen}</span>}
       onOpen={setOpen}
     >
-      {viewData.error && <p className="text-red-500">{viewData.error}</p>}
+      {viewData.error && <p className="text-down">{viewData.error}</p>}
 
       <label className="flex flex-col gap-1">
         <span className="text-sm opacity-70">{t("Año", "Year")}</span>
@@ -129,7 +129,7 @@ export default function TaxAnalysis() {
       </label>
 
       {/* ---------- SUMMARY OF THE YEAR ---------- */}
-      <div className="rounded border border-gray-400 p-3">
+      <div className="rounded-xl border border-line bg-surface p-3">
         <p className="text-sm opacity-70">
           {t("Ganancias y pérdidas de tus ventas", "Gains and losses on your sales")}
         </p>
@@ -168,7 +168,7 @@ export default function TaxAnalysis() {
         ) : (
           <ul className="flex flex-col gap-2">
             {sales.map((v) => (
-              <li key={v.id} className="rounded border border-gray-400/50 p-2 text-sm">
+              <li key={v.id} className="rounded-xl border border-line p-2 text-sm">
                 <div className="flex justify-between gap-3">
                   <p className="min-w-0 font-medium">
                     {prettyDate(v.date)} · {name(v.asset_id)}
@@ -218,7 +218,7 @@ export default function TaxAnalysis() {
         >
           <ul className="flex flex-col gap-2">
             {switches.map((tr) => (
-              <li key={tr.id} className="rounded border border-gray-400/50 p-2 text-sm">
+              <li key={tr.id} className="rounded-xl border border-line p-2 text-sm">
                 <p className="font-medium">
                   {prettyDate(tr.date)} · {name(tr.source)} → {name(tr.target)}
                 </p>

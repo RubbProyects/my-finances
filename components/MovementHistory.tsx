@@ -330,18 +330,18 @@ export default function MovementHistory({
           {t("Solo Bizum", "Bizum only")}
         </label>
         {hasFilters && (
-          <button onClick={() => update(NO_FILTERS)} className="text-sm text-blue-600 underline">
+          <button onClick={() => update(NO_FILTERS)} className="text-sm text-accent underline">
             {t("Quitar filtros", "Clear filters")}
           </button>
         )}
       </div>
 
-      {result?.error && <p className="text-red-500">{result.error}</p>}
-      {notice && <p className="text-red-500">{notice}</p>}
+      {result?.error && <p className="text-down">{result.error}</p>}
+      {notice && <p className="text-down">{notice}</p>}
 
       {/* ---------- Total of what is filtered ---------- */}
       {result && movementList.length > 0 && (
-        <div className={`rounded bg-gray-500/10 p-3 ${loading ? "opacity-50" : ""}`}>
+        <div className={`rounded-xl bg-surface-2 p-3 ${loading ? "opacity-50" : ""}`}>
           <div className="flex items-baseline justify-between gap-3">
             <span className="text-sm opacity-70">
               {movementList.length}{" "}
@@ -374,7 +374,7 @@ export default function MovementHistory({
           {movementList.slice(0, visibleCount).map((m) => {
             const negative = m.type === "expense" || (m.type === "adjustment" && m.amount < 0);
             const sign = negative ? "−" : "+";
-            const color = m.type === "transfer" ? "" : negative ? "text-red-500" : "text-green-600";
+            const color = m.type === "transfer" ? "" : negative ? "text-down" : "text-up";
             const location =
               m.type === "transfer"
                 ? `${m.account?.name ?? "?"} → ${m.target?.name ?? "?"}`
@@ -390,7 +390,7 @@ export default function MovementHistory({
 
             if (editing === m.id) {
               return (
-                <li key={m.id} className="rounded border border-blue-600 p-3">
+                <li key={m.id} className="rounded-xl border border-accent p-3">
                   <p className="mb-3 font-semibold">
                     {t("✏️ Editar movimiento", "✏️ Edit transaction")}
                   </p>
@@ -408,7 +408,7 @@ export default function MovementHistory({
             return (
               <li
                 key={m.id}
-                className="flex items-center justify-between gap-3 rounded border border-gray-400 p-3"
+                className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface p-3"
               >
                 <div className="min-w-0">
                   <p className="truncate font-semibold">{title}</p>
@@ -418,7 +418,7 @@ export default function MovementHistory({
                     {m.bizum ? " · Bizum" : ""}
                   </p>
                   {ofExpense && (
-                    <p className="text-sm text-green-600">
+                    <p className="text-sm text-up">
                       {t("↩️ Reembolso de", "↩️ Refund of")} «
                       {ofExpense.description ?? t("un gasto", "an expense")}» (
                       {prettyDate(ofExpense.date)})
@@ -428,7 +428,7 @@ export default function MovementHistory({
                     <>
                       <button
                         onClick={() => setRefundsOpenFor(refundsOpenFor === m.id ? null : m.id)}
-                        className="text-left text-sm text-green-600"
+                        className="text-left text-sm text-up"
                       >
                         ↩️{" "}
                         {refunds.count === 1
@@ -441,7 +441,7 @@ export default function MovementHistory({
                         </span>
                       </button>
                       {refundsOpenFor === m.id && (
-                        <ul className="mt-1 border-l-2 border-green-600/50 pl-2 text-sm opacity-80">
+                        <ul className="mt-1 border-l-2 border-up/50 pl-2 text-sm opacity-80">
                           {refunds.list.map((r) => (
                             <li key={r.id}>
                               {prettyDate(r.date)} · {r.description ?? t("Reembolso", "Refund")} · +
@@ -465,11 +465,11 @@ export default function MovementHistory({
                         setEditing(m.id);
                         setNotice("");
                       }}
-                      className="text-sm text-blue-600 underline"
+                      className="text-sm text-accent underline"
                     >
                       {t("Editar", "Edit")}
                     </button>
-                    <button onClick={() => remove(m)} className="text-sm text-red-500 underline">
+                    <button onClick={() => remove(m)} className="text-sm text-down underline">
                       {t("Borrar", "Delete")}
                     </button>
                   </div>
@@ -483,7 +483,7 @@ export default function MovementHistory({
       {movementList.length > visibleCount && (
         <button
           onClick={() => setVisibleCount((v) => v + PAGE_SIZE)}
-          className="rounded border border-gray-400 p-3 text-base"
+          className="rounded-xl border border-line bg-surface p-3 text-base"
         >
           {t("Ver más", "Show more")} ({movementList.length - visibleCount} {t("más", "more")})
         </button>

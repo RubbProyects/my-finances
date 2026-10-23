@@ -82,7 +82,7 @@ export default function ClassifyForm({
 
   const buttonClass = (asset: boolean) =>
     `flex-1 rounded border p-2 text-sm ${
-      asset ? "border-blue-600 bg-blue-600 font-semibold text-white" : "border-gray-400"
+      asset ? "border-accent bg-accent font-semibold text-on-accent" : "border-line"
     }`;
 
   return (
@@ -213,14 +213,14 @@ export default function ClassifyForm({
         </>
       )}
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-down">{error}</p>}
 
       <div className="flex gap-2">
         <button
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="flex-1 rounded border border-gray-400 p-3 text-base"
+          className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
         >
           {t("Cancelar", "Cancel")}
         </button>

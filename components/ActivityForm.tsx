@@ -364,8 +364,8 @@ export default function ActivityForm({
             }}
             className={`rounded border p-2 text-sm ${
               type === id
-                ? "border-blue-600 bg-blue-600 font-semibold text-white"
-                : "border-gray-400"
+                ? "border-accent bg-accent font-semibold text-on-accent"
+                : "border-line"
             }`}
           >
             {typeName(id)}
@@ -540,9 +540,9 @@ export default function ActivityForm({
       <label className="text-sm opacity-70">{t("Notas (opcional)", "Notes (optional)")}</label>
       <input className={field} value={notes} onChange={(e) => setNotes(e.target.value)} />
 
-      {error && <p className="text-red-500">{error}</p>}
+      {error && <p className="text-down">{error}</p>}
       {notice.map((line) => (
-        <p key={line} className={line.startsWith("⚠️") ? "text-orange-500" : "text-green-600"}>
+        <p key={line} className={line.startsWith("⚠️") ? "text-orange-500" : "text-up"}>
           {line}
         </p>
       ))}
@@ -553,7 +553,7 @@ export default function ActivityForm({
             type="button"
             onClick={onCancel}
             disabled={saving}
-            className="flex-1 rounded border border-gray-400 p-3 text-base"
+            className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
           >
             {t("Cancelar", "Cancel")}
           </button>

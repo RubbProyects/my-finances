@@ -131,11 +131,11 @@ export default function BankRules() {
                 </div>
                 <div className="flex shrink-0 gap-3 text-sm">
                   {!r.is_transfer && (
-                    <button type="button" className="text-blue-600 underline" onClick={() => startEditing(r)}>
+                    <button type="button" className="text-accent underline" onClick={() => startEditing(r)}>
                       {t("Editar", "Edit")}
                     </button>
                   )}
-                  <button type="button" className="text-red-500 underline" onClick={() => remove(r)}>
+                  <button type="button" className="text-down underline" onClick={() => remove(r)}>
                     {t("Borrar", "Delete")}
                   </button>
                 </div>

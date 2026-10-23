@@ -71,7 +71,7 @@ export default function SymbolSearch({
             : t("🔎 Buscar símbolo en Yahoo", "🔎 Search symbol on Yahoo")}
       </button>
 
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {error && <p className="text-sm text-down">{error}</p>}
 
       {options && options.length === 0 && (
         <p className="text-sm opacity-70">
@@ -92,11 +92,11 @@ export default function SymbolSearch({
                   onPick(o.symbol);
                   setOptions(null);
                 }}
-                className="w-full rounded border border-gray-400 p-2 text-left text-sm"
+                className="w-full rounded-xl border border-line bg-surface p-2 text-left text-sm"
               >
                 <span className="font-semibold">{o.symbol}</span>
                 {o.currency && (
-                  <span className={o.currency === "EUR" ? "text-green-600" : "text-orange-500"}>
+                  <span className={o.currency === "EUR" ? "text-up" : "text-orange-500"}>
                     {" "}
                     · {o.currency}
                   </span>

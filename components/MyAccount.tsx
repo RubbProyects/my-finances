@@ -36,7 +36,7 @@ export default function MyAccount() {
       <button
         onClick={signOut}
         disabled={signingOut}
-        className="rounded border border-red-500 p-3 text-base font-semibold text-red-500 disabled:opacity-50"
+        className="rounded-xl border border-down p-3 text-base font-semibold text-down disabled:opacity-50"
       >
         {signingOut ? t("Cerrando...", "Signing out...") : t("Cerrar sesión", "Sign out")}
       </button>

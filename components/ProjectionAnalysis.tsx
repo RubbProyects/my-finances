@@ -292,7 +292,7 @@ export default function ProjectionAnalysis() {
       summary={<span className="font-bold">{euros(last.value)}</span>}
       onOpen={setOpen}
     >
-      {viewData.error && <p className="text-red-500">{viewData.error}</p>}
+      {viewData.error && <p className="text-down">{viewData.error}</p>}
 
       <label className="flex flex-col gap-1">
         <span className="text-sm opacity-70">{t("Años", "Years")}</span>
@@ -304,7 +304,7 @@ export default function ProjectionAnalysis() {
         />
       </label>
       {!validYears && (
-        <p className="text-sm text-red-500">
+        <p className="text-sm text-down">
           {t(
             "Escribe un número entero de 1 a 50. Mientras, uso 10.",
             "Enter a whole number from 1 to 50. Meanwhile, I use 10.",
@@ -313,7 +313,7 @@ export default function ProjectionAnalysis() {
       )}
 
       {/* ---------- Result ---------- */}
-      <div className="rounded bg-gray-500/10 p-3">
+      <div className="rounded-xl bg-surface-2 p-3">
         <p className="text-sm opacity-70">
           {t("En", "In")} {n} {n === 1 ? t("año", "year") : t("años", "years")} (
           {monthName(endDate.slice(0, 7), language())})
@@ -382,7 +382,7 @@ export default function ProjectionAnalysis() {
                 <li
                   key={f.a.id}
                   className={`flex flex-col gap-2 rounded border p-3 ${
-                    isChanged(f) ? "border-amber-500" : "border-gray-400/50"
+                    isChanged(f) ? "border-amber-500" : "border-line"
                   }`}
                 >
                   <div className="flex items-baseline justify-between gap-3">
@@ -396,7 +396,7 @@ export default function ProjectionAnalysis() {
                     <label className="flex min-w-0 flex-col gap-1">
                       <span className="text-sm opacity-70">{t("€ al mes", "€ a month")}</span>
                       <input
-                        className={`${field} w-full min-w-0 ${contribution === null ? "border-red-500" : ""}`}
+                        className={`${field} w-full min-w-0 ${contribution === null ? "border-down" : ""}`}
                         inputMode="decimal"
                         placeholder="0"
                         value={contributions[f.a.id] ?? ""}
@@ -407,7 +407,7 @@ export default function ProjectionAnalysis() {
                       <span className="text-sm opacity-70">{t("% al año", "% a year")}</span>
                       <div className="flex gap-1">
                         <input
-                          className={`${field} w-full min-w-0 ${own === null ? "border-red-500" : ""}`}
+                          className={`${field} w-full min-w-0 ${own === null ? "border-down" : ""}`}
                           inputMode="decimal"
                           placeholder={pctText(f.typePct)}
                           value={annualReturns[f.a.id] ?? ""}
@@ -419,7 +419,7 @@ export default function ProjectionAnalysis() {
                           onClick={() =>
                             edit("pct", f.a.id, toggleSign(annualReturns[f.a.id] ?? ""))
                           }
-                          className="shrink-0 rounded border border-gray-400 px-3 text-base"
+                          className="shrink-0 rounded-xl border border-line bg-surface px-3 text-base"
                         >
                           ±
                         </button>
@@ -428,14 +428,14 @@ export default function ProjectionAnalysis() {
                   </div>
 
                   {contribution === null ? (
-                    <p className="text-sm text-red-500">
+                    <p className="text-sm text-down">
                       {t(
                         "La aportación debe ser 0 o más, por ejemplo 150",
                         "The contribution must be 0 or more, e.g. 150",
                       )}
                     </p>
                   ) : own === null ? (
-                    <p className="text-sm text-red-500">
+                    <p className="text-sm text-down">
                       {t(
                         "El % debe ser un número mayor que −100, por ejemplo 7 o −2,5",
                         "The % must be a number over −100, e.g. 7 or −2.5",
@@ -468,15 +468,15 @@ export default function ProjectionAnalysis() {
           </ul>
         )}
 
-        {error && <p className="text-red-500">{error}</p>}
-        {notice && <p className="text-green-600">{notice}</p>}
+        {error && <p className="text-down">{error}</p>}
+        {notice && <p className="text-up">{notice}</p>}
         {changedRows.length > 0 && (
           <div className="flex gap-2">
             <button
               type="button"
               onClick={undo}
               disabled={saving}
-              className="flex-1 rounded border border-gray-400 p-3 text-base"
+              className="flex-1 rounded-xl border border-line bg-surface p-3 text-base"
             >
               {t("Deshacer cambios", "Undo changes")}
             </button>

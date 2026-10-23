@@ -105,7 +105,7 @@ function BarRow({
     <>
       <div className="flex items-baseline justify-between gap-3 text-sm">
         <span className="min-w-0 truncate">
-          {chosen && <span className="mr-1 font-bold text-blue-600">✓</span>}
+          {chosen && <span className="mr-1 font-bold text-accent">✓</span>}
           {name}
         </span>
         <span className="shrink-0">
@@ -116,7 +116,7 @@ function BarRow({
         </span>
       </div>
       {detail && <p className="text-xs opacity-60">{detail}</p>}
-      <div className="h-2 rounded bg-gray-500/15">
+      <div className="h-2 rounded-xl bg-surface-2">
         {pct > 0 && (
           <div className={`h-2 rounded ${BLUE}`} style={{ width: `${Math.max(pct, 1)}%` }} />
         )}
@@ -212,7 +212,7 @@ export default function SpendingAnalysis() {
       summary={<span className="font-bold">{euros(r.realTotal)}</span>}
       onOpen={setOpen}
     >
-      {viewData.error && <p className="text-red-500">{viewData.error}</p>}
+      {viewData.error && <p className="text-down">{viewData.error}</p>}
 
       <label className="flex flex-col gap-1">
         <span className="text-sm opacity-70">{t("Mes", "Month")}</span>
@@ -236,7 +236,7 @@ export default function SpendingAnalysis() {
       </label>
 
       {/* ---------- Total of what is chosen ---------- */}
-      <div className="rounded bg-gray-500/10 p-3">
+      <div className="rounded-xl bg-surface-2 p-3">
         <p className="text-sm opacity-70">
           {t("Gastos reales", "Real spending")} · {monthsText(months)}
           {categoriesText && ` · ${categoriesText}`}
@@ -261,13 +261,13 @@ export default function SpendingAnalysis() {
               <button
                 type="button"
                 onClick={() => setMonths([currentMonth])}
-                className="text-blue-600 underline"
+                className="text-accent underline"
               >
                 {t("Volver al mes actual", "Back to this month")}
               </button>
             )}
             {cats.length > 0 && (
-              <button type="button" onClick={() => setCats([])} className="text-blue-600 underline">
+              <button type="button" onClick={() => setCats([])} className="text-accent underline">
                 {t("Todas las categorías", "All categories")}
               </button>
             )}
