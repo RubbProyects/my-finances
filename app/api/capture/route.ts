@@ -4,10 +4,20 @@
 //
 // The shortcut sends: Authorization: Bearer <token> and a JSON body:
 //   { "merchant": "Mercadona", "amount": "12,50", "card": "Santander Debit", "currency": "EUR", "date": "2026-10-23" }
-// "currency" and "date" are optional (the date defaults to today in Madrid).
+// "currency", "date" and "category" (the name of an expense category) are optional (the date
+// defaults to today in Madrid). The answer has the capture "id" and, when it was recorded, the
+// "categories" to choose from: the shortcut can ask which one and send it to /api/capture/category.
 import { NOT_IN_DEMO, DEMO } from "@/lib/demo";
 import { isEuro, normalizeCard, parseCaptureAmount } from "@/lib/captures";
-import { accountForCard, reconcileCaptures, recordCapture, userForToken, type CaptureRow } from "@/lib/capture-server";
+import {
+  accountForCard,
+  categoryChoices,
+  categoryIdByName,
+  reconcileCaptures,
+  recordCapture,
+  userForToken,
+  type CaptureRow,
+} from "@/lib/capture-server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
 const todayInMadrid = () =>
@@ -46,7 +56,7 @@ export async function POST(request: Request) {
       .gte("created_at", since);
     const { data: repeated } = await (cardValue ? sameCard.eq("card", cardValue) : sameCard.is("card", null));
     const same = (repeated ?? []).find(Boolean);
-    if (same) return Response.json({ ok: true, status: same.status, repeated: true });
+    if (same) return Response.json({ ok: true, status: same.status, id: same.id, repeated: true });
 
     const accountId = euro ? await accountForCard(admin, userId, card) : null;
     const status = !euro ? "foreign" : accountId ? "open" : "unmapped";
@@ -68,12 +78,19 @@ export async function POST(request: Request) {
     }
 
     if (status === "open" && accountId) {
-      const problem = await recordCapture(admin, userId, created as CaptureRow, accountId);
+      const chosen = await categoryIdByName(admin, userId, text(body.category, 80) ?? "");
+      const problem = await recordCapture(admin, userId, created as CaptureRow, accountId, chosen);
       if (problem) return Response.json({ error: problem }, { status: 500 });
       // The bank may already have shown it (a late shortcut)
       await reconcileCaptures(admin, userId).catch(() => null);
+      return Response.json({
+        ok: true,
+        status,
+        id: created.id,
+        categories: await categoryChoices(admin, userId),
+      });
     }
-    return Response.json({ ok: true, status });
+    return Response.json({ ok: true, status, id: created.id });
   } catch (e) {
     return Response.json({ error: e instanceof Error ? e.message : String(e) }, { status: 500 });
   }
