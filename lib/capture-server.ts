@@ -2,7 +2,7 @@
 // pairing it with the bank movement that arrives later. ONLY on the server.
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { findRule, movementRow, type Rule } from "@/lib/classify";
+import { findRule, movementRow, normalize, type Rule } from "@/lib/classify";
 import { normalizeCard, pairCaptures } from "@/lib/captures";
 
 export type CaptureRow = {
@@ -15,6 +15,9 @@ export type CaptureRow = {
   account_id: string | null;
   movement_id: string | null;
 };
+
+// First item of the list the shortcut shows: keeps the category the rules chose
+export const AUTO_CATEGORY = "⚡ Automática";
 
 export const hashToken = (token: string) => createHash("sha256").update(token).digest("hex");
 
@@ -48,13 +51,49 @@ export async function accountForCard(
   return null;
 }
 
-// Records the expense in the app right away (with the category a rule suggests, if any)
+// The list the shortcut offers: automatic first, then your expense categories, the most used
+// (in your latest expenses) first
+export async function categoryChoices(admin: SupabaseClient, userId: string): Promise<string[]> {
+  const [{ data: cats }, { data: recent }] = await Promise.all([
+    admin.from("expense_categories").select("id, name").eq("user_id", userId),
+    admin
+      .from("movements")
+      .select("category_id")
+      .eq("user_id", userId)
+      .eq("type", "expense")
+      .not("category_id", "is", null)
+      .order("date", { ascending: false })
+      .limit(300),
+  ]);
+  const uses = new Map<string, number>();
+  for (const r of recent ?? []) uses.set(r.category_id, (uses.get(r.category_id) ?? 0) + 1);
+  const names = (cats ?? [])
+    .map((c) => ({ name: c.name as string, n: uses.get(c.id) ?? 0 }))
+    .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name))
+    .map((c) => c.name);
+  return [AUTO_CATEGORY, ...names];
+}
+
+// The id of the expense category with that name (ignoring case and accents), or null
+export async function categoryIdByName(
+  admin: SupabaseClient,
+  userId: string,
+  name: string,
+): Promise<string | null> {
+  if (!name || name === AUTO_CATEGORY) return null;
+  const { data } = await admin.from("expense_categories").select("id, name").eq("user_id", userId);
+  return (data ?? []).find((c) => normalize(c.name) === normalize(name))?.id ?? null;
+}
+
+// Records the expense in the app right away (with the category a rule suggests, if any;
+// "categoryId" is the one chosen on the shortcut and wins over the rule)
 // and marks the capture as waiting for the bank
 export async function recordCapture(
   admin: SupabaseClient,
   userId: string,
   c: CaptureRow,
   accountId: string,
+  categoryId: string | null = null,
 ): Promise<string | null> {
   const { data: rules } = await admin.from("bank_rules").select("*").eq("user_id", userId);
   const asMovement = {
@@ -68,7 +107,7 @@ export async function recordCapture(
   const rule = findRule(((rules ?? []) as Rule[]).filter((r) => !r.is_transfer), asMovement, accountId);
   const built = movementRow(asMovement, accountId, {
     isTransfer: false,
-    categoryId: rule?.category_id ?? null,
+    categoryId: categoryId ?? rule?.category_id ?? null,
     bizum: rule?.bizum ?? false,
     otherAccountId: null,
     description: rule?.description ?? c.merchant ?? "",
