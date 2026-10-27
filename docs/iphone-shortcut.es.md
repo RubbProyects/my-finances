@@ -33,19 +33,24 @@ después, cuando el banco muestra el mismo pago, la app los empareja y no queda 
 2. Elige solo tus **tarjetas de pago**, marca **Ejecutar inmediatamente** y pulsa **Siguiente**.
 3. Pulsa **Crear atajo nuevo** y, en la **Entrada del atajo**, pon el **Tipo** en **Transacción**:
    así existen las variables **Importe** y **Comercio**.
-4. Añade las acciones, en este orden:
+4. Añade estas **10 acciones**, en este orden (las variables con nombre evitan confusiones):
    1. **Formatear fecha**: Fecha = *Fecha actual*, Formato = *Personalizado*, texto `yyyy-MM-dd`.
-   2. **Obtener contenido de URL** (como en la prueba de arriba) con estos campos de tipo Texto:
-      `merchant` = **Entrada del atajo → Comercio**, `amount` = **Entrada del atajo → Importe**,
-      `card` = **Entrada del atajo → Tarjeta o pase**, `date` = el resultado de **Formatear fecha**.
-   3. **Definir variable** `respuesta` con el **Contenido de la URL**.
-   4. **Obtener valor del diccionario**: la clave `categories` de `respuesta`.
-   5. **Elegir de la lista**, con la lista del paso anterior (mensaje: «Categoría»).
-   6. **Definir variable** `categoria` con el **Elemento elegido**.
-   7. **Obtener valor del diccionario**: la clave `id` de `respuesta`.
-   8. **Obtener contenido de URL** a la **misma dirección terminada en `/api/capture/category`**
-      (en vez de `/api/capture`), Método **POST**, las mismas dos cabeceras, y JSON con dos campos
-      de tipo Texto: `id` = el valor del paso 7 y `category` = la variable `categoria`.
+   2. **Obtener contenido de URL** (como en la prueba de arriba, con la dirección terminada en
+      `/api/capture`) y cuatro campos de tipo Texto: `merchant` = **Entrada del atajo → Comercio**,
+      `amount` = **Entrada del atajo → Importe**, `card` = **Entrada del atajo → Tarjeta o pase**,
+      `date` = **Fecha con formato** (el resultado de la acción 1).
+   3. **Definir variable** `respuesta` = el **Contenido de la URL**.
+   4. **Obtener valor del diccionario**: «Obtener Valor para `categories` en `respuesta`».
+   5. **Definir variable** `lista` = el resultado de la acción 4.
+   6. **Elegir de la lista**: en «Seleccionar en» pon la variable `lista`; mensaje: `Categoría`.
+   7. **Definir variable** `categoria` = el **Elemento elegido**.
+   8. **Obtener valor del diccionario**: «Obtener Valor para `id` en `respuesta`».
+   9. **Definir variable** `idpago` = el resultado de la acción 8.
+   10. **Obtener contenido de URL** a la **misma dirección terminada en `/api/capture/category`**
+       (en vez de `/api/capture`), Método **POST**, las mismas dos cabeceras, y JSON con dos
+       campos de tipo Texto: `id` = la variable `idpago` y `category` = la variable `categoria`.
+   (Si el hueco de «Seleccionar en» no te ofrece el resultado de la acción 4, la variable `lista`
+   de la acción 5 lo resuelve: las variables con nombre aparecen siempre.)
 5. Pulsa **OK**.
 
 La primera opción de la lista es **⚡ Automática**: deja la categoría que decidan tus reglas del
@@ -57,6 +62,12 @@ sin elegir, el pago **ya está apuntado** con la categoría automática: no se p
 El primer pago de cada tarjeta llega como «falta asignar la tarjeta» (y sin lista de categorías):
 ve a **Ajustes → ⚡ Captura instantánea → 2. Tarjetas y cuentas** y elige a qué cuenta de la app
 pertenece. Los pagos que esperaban se apuntan en ese momento, con la categoría de tus reglas.
+
+## Sin cobertura
+
+El pago con Apple Pay funciona igual, pero el atajo no puede enviarlo a la app y se corta con un
+error: **no se pierde nada**, el pago llegará cuando el banco lo traiga, a **Por clasificar**. Si
+se corta después del primer envío, el gasto ya está apuntado con la categoría automática.
 
 ## Cómo evita los duplicados
 
