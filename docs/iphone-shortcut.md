@@ -32,19 +32,24 @@ Days later, when the bank shows the same payment, the app pairs both and nothing
 2. Choose only your **payment cards**, tick **Run Immediately** and tap **Next**.
 3. Tap **Create New Shortcut** and, on the **Shortcut Input**, set the **Type** to **Transaction**:
    that is what makes the **Amount** and **Merchant** variables available.
-4. Add the actions in this order:
+4. Add these **10 actions**, in this order (named variables avoid mix-ups):
    1. **Format Date**: Date = *Current Date*, Format = *Custom*, text `yyyy-MM-dd`.
-   2. **Get Contents of URL** (as in the test above) with these Text fields:
-      `merchant` = **Shortcut Input → Merchant**, `amount` = **Shortcut Input → Amount**,
-      `card` = **Shortcut Input → Card or Pass**, `date` = the result of **Format Date**.
-   3. **Set Variable** `response` to the **Contents of URL**.
-   4. **Get Dictionary Value**: the key `categories` of `response`.
-   5. **Choose from List**, with the list from the previous step (prompt: "Category").
-   6. **Set Variable** `category` to the **Chosen Item**.
-   7. **Get Dictionary Value**: the key `id` of `response`.
-   8. **Get Contents of URL** to the **same address ending in `/api/capture/category`**
-      (instead of `/api/capture`), Method **POST**, the same two headers, and JSON with two Text
-      fields: `id` = the value from step 7 and `category` = the variable `category`.
+   2. **Get Contents of URL** (as in the test above, with the address ending in `/api/capture`)
+      and four Text fields: `merchant` = **Shortcut Input → Merchant**, `amount` = **Shortcut
+      Input → Amount**, `card` = **Shortcut Input → Card or Pass**, `date` = **Formatted Date**
+      (the result of action 1).
+   3. **Set Variable** `response` = the **Contents of URL**.
+   4. **Get Dictionary Value**: "Get Value for `categories` in `response`".
+   5. **Set Variable** `list` = the result of action 4.
+   6. **Choose from List**: put the variable `list` in the list slot; prompt: `Category`.
+   7. **Set Variable** `category` = the **Chosen Item**.
+   8. **Get Dictionary Value**: "Get Value for `id` in `response`".
+   9. **Set Variable** `paymentid` = the result of action 8.
+   10. **Get Contents of URL** to the **same address ending in `/api/capture/category`** (instead
+       of `/api/capture`), Method **POST**, the same two headers, and JSON with two Text fields:
+       `id` = the variable `paymentid` and `category` = the variable `category`.
+   (If the list slot doesn't offer the result of action 4, the named variable `list` from
+   action 5 solves it: named variables always show up.)
 5. Tap **Done**.
 
 The first option in the list is **⚡ Automática** (automatic): it keeps the category your bank
@@ -57,6 +62,12 @@ nothing is lost.
 The first payment from each card arrives as "card needs an account" (and with no category list):
 go to **Settings → ⚡ Instant capture → 2. Cards and accounts** and choose which app account the
 card belongs to. Waiting payments are recorded at that moment, with the category your rules give.
+
+## Without coverage
+
+The Apple Pay payment works as usual, but the shortcut can't send it to the app and stops with an
+error: **nothing is lost**, the payment will arrive when the bank brings it, in **To review**. If
+it stops after the first request, the expense is already recorded with the automatic category.
 
 ## How it avoids duplicates
 
