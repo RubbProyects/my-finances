@@ -7,7 +7,8 @@ import Collapsible from "@/components/Collapsible";
 import PricesStamp from "@/components/PricesStamp";
 import Sparkline from "@/components/Sparkline";
 import { permissionWarnings } from "@/lib/bank";
-import { change, inRange, RANGES, thin, type ChartPoint, type RangeId } from "@/lib/chart";
+import { rangeReturn } from "@/lib/analysis";
+import { inRange, RANGES, thin, type ChartPoint, type RangeId } from "@/lib/chart";
 import { gainColor, withSign, euros, price, pctWithSign, percent, prettyDate, units } from "@/lib/format";
 import { EMPTY_HISTORY, fetchHistory, type History } from "@/lib/history";
 import { language, t } from "@/lib/language";
@@ -96,6 +97,8 @@ export default function Summary() {
   const history = viewData?.history ?? EMPTY_HISTORY;
   const days = RANGES.find((r) => r.id === rangeId)?.days ?? 0;
   const points = useMemo(() => thin(inRange(history.portfolio, days), 160), [history, days]);
+  // Gain in the chosen period: the money put in during the period is not a gain
+  const result = useMemo(() => rangeReturn(history.portfolio, history.ops, days), [history, days]);
 
   if (!viewData) {
     return (
@@ -112,7 +115,6 @@ export default function Summary() {
   const total = accountsTotal + inv.value;
   const part = (n: number) => (total > 0 ? percent((n / total) * 100) : "");
 
-  const range = change(points);
   const shown = hover ?? points[points.length - 1] ?? null;
 
   return (
@@ -129,15 +131,15 @@ export default function Summary() {
         <div className="px-5">
           <p className="text-sm text-muted">{t("Patrimonio total", "Net worth")}</p>
           <p className="text-4xl font-bold tracking-tight">{euros(total)}</p>
-          {points.length >= 2 && (
+          {result && (
             <p className="mt-1 text-sm">
-              <span className={`font-semibold ${gainColor(range.diff)}`}>
-                <span>{withSign(range.diff)}</span>
-                {range.pct !== null ? ` · ${pctWithSign(range.pct)}` : ""}
+              <span className={`font-semibold ${gainColor(result.gain)}`}>
+                <span>{withSign(result.gain)}</span>
+                {result.pct !== null ? ` · ${pctWithSign(result.pct)}` : ""}
               </span>
               <span className="text-muted">
                 {" "}
-                {t("inversiones en este periodo", "investments in this period")}
+                {t("ganado por tus inversiones en este periodo", "gained by your investments in this period")}
               </span>
             </p>
           )}
@@ -156,7 +158,7 @@ export default function Summary() {
         <div className="mt-2">
           <AreaChart
             points={points}
-            positive={range.diff >= 0}
+            positive={(result?.gain ?? 0) >= 0}
             onHover={setHover}
             label={t("Evolución de tus inversiones", "Evolution of your investments")}
           />

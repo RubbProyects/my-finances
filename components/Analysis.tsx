@@ -68,7 +68,7 @@ async function fetchViewData(): Promise<ViewData> {
       fetchAllPages<Op>((d, h) =>
         supabase
           .from("transactions")
-          .select("asset_id, date, type, amount, fee, withholding, units, factor")
+          .select("asset_id, date, type, amount, fee, withholding, units, factor, switch_id")
           .order("date")
           .order("id")
           .range(d, h),

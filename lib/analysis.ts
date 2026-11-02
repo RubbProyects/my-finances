@@ -10,6 +10,7 @@ export type Op = {
   withholding: number;
   units: number | null;
   factor: number | null;
+  switch_id?: string | null; // set on both halves (sell + buy) of a fund switch
 };
 
 export type DayPrice = { date: string; price: number };
@@ -118,6 +119,8 @@ export function periodReturn(
   let invested = 0;
   for (const o of ops) {
     if (o.date < from || o.date > until) continue;
+    // A fund switch only moves money between two funds: it is not money put in or taken out
+    if (o.switch_id) continue;
     const f = flow(o);
     flows += f;
     weighted += f * (daysBetween(o.date, until) / total);
@@ -127,6 +130,23 @@ export function periodReturn(
   // If nothing was invested at the start, the % is over what you put in (more intuitive)
   const base = v0 > 0.01 ? v0 + weighted : invested;
   return { gain, pct: base > 0.01 ? (gain / base) * 100 : null };
+}
+
+// Gain over the last `days` days (0 = since the first activity) of a daily portfolio series,
+// without counting the money put in or taken out during the period as gain
+export function rangeReturn(
+  series: { date: string; value: number }[],
+  ops: Op[],
+  days: number,
+): { gain: number; pct: number | null } | null {
+  if (series.length < 2) return null;
+  const last = series[series.length - 1];
+  const from = days === 0 ? series[0].date : addDays(last.date, -days);
+  let i = series.findIndex((p) => p.date >= from);
+  if (i < 0 || i === series.length - 1) i = series.length - 2;
+  // Value at the end of the day before the period starts (0 if there was nothing yet)
+  const v0 = i > 0 ? series[i - 1].value : 0;
+  return periodReturn(v0, last.value, ops, series[i].date, last.date);
 }
 
 export type DayChange = {
