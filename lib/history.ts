@@ -14,9 +14,15 @@ export type History = {
   portfolio: ChartPoint[];
   contributed: number;
   byAsset: Map<string, ChartPoint[]>;
+  ops: Op[]; // investment activity, to tell gains apart from money put in
 };
 
-export const EMPTY_HISTORY: History = { portfolio: [], contributed: 0, byAsset: new Map() };
+export const EMPTY_HISTORY: History = {
+  portfolio: [],
+  contributed: 0,
+  byAsset: new Map(),
+  ops: [],
+};
 
 // Supabase returns at most 1000 rows per request: we fetch page by page
 async function allPages<T>(
@@ -42,7 +48,7 @@ export async function fetchHistory(assets: AssetInfo[]): Promise<History> {
       allPages<Op>((d, h) =>
         supabase
           .from("transactions")
-          .select("asset_id, date, type, amount, fee, withholding, units, factor")
+          .select("asset_id, date, type, amount, fee, withholding, units, factor, switch_id")
           .order("date")
           .order("id")
           .range(d, h),
@@ -80,6 +86,7 @@ export async function fetchHistory(assets: AssetInfo[]): Promise<History> {
       portfolio: series.map((p) => ({ date: p.date, value: p.value })),
       contributed: series.length ? series[series.length - 1].contributed : 0,
       byAsset: trends,
+      ops: clean,
     };
   } catch {
     return EMPTY_HISTORY;
